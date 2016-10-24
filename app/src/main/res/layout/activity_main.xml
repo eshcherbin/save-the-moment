@@ -10,8 +10,29 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ru.spbau.savethemoment.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <Button
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:id="@+id/button_main_map"
+        android:text="@string/button_main_map_text"
+        android:elevation="0dp"
+        android:layout_below="@+id/button_main_list"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_main_list"
+        android:text="@string/button_main_list_text"
+        android:layout_marginTop="179dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/button_main_create"
+        android:text="@string/button_main_create_text"
+        android:layout_below="@+id/button_main_map"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>
