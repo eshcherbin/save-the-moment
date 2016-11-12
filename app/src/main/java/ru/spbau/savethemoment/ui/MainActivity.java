@@ -14,7 +14,6 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // set button click handlers
         Button main_list_button = (Button) findViewById(R.id.button_main_list);
         main_list_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -35,7 +34,7 @@ public class MainActivity extends Activity {
         main_create_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: handle click (Create new moment and)
+                //TODO: handle click (Create new moment and start View moment activity)
             }
         });
     }
