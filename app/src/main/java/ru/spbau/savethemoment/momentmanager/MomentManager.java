@@ -1,13 +1,31 @@
 package ru.spbau.savethemoment.momentmanager;
 
+import android.location.Location;
+
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class MomentManager {
     public static List<Moment> getMoments() {
-        return null;
+        return loadMoments();
     }
 
     public static List<Moment> getMomentsByTags(List<String> tags) {
-        return null;
+        List<Moment> allMoments = loadMoments();
+        List<Moment> filteredMoments = new LinkedList<>();
+        for (Moment moment : allMoments) {
+            if (moment.getTags().containsAll(tags)) {
+                filteredMoments.add(moment);
+            }
+        }
+        return filteredMoments;
+    }
+
+    private static List<Moment> loadMoments() {
+        return Collections.singletonList(new Moment("id", "Test moment", "This is a test moment",
+                                                    Calendar.getInstance(), new Location(""),
+                                                    Collections.singletonList("testTag")));
     }
 }
