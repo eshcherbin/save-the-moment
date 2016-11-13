@@ -24,6 +24,7 @@ public class MomentManager {
     }
 
     private static List<Moment> loadMoments() {
+        //TODO: implement loading moments from Google Drive
         return Collections.singletonList(new Moment("id", "Test moment", "This is a test moment",
                                                     Calendar.getInstance(), new Location(""),
                                                     Collections.singletonList("testTag")));
