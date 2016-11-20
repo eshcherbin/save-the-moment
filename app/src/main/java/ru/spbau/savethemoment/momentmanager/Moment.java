@@ -4,17 +4,18 @@ import android.location.Location;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 public class Moment {
-    private String id;
+    private int id;
     private String title;
     private String description;
     private Calendar capturingTime;
     private Location location;
-    private List<String> tags;
+    private Set<String> tags;
 
-    public Moment(String id, String title, String description, Calendar capturingTime,
-                  Location location, List<String> tags) {
+    public Moment(int id, String title, String description, Calendar capturingTime,
+                  Location location, Set<String> tags) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -23,7 +24,7 @@ public class Moment {
         this.tags = tags;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
@@ -43,7 +44,7 @@ public class Moment {
         return location;
     }
 
-    public List<String> getTags() {
+    public Set<String> getTags() {
         return tags;
     }
 }

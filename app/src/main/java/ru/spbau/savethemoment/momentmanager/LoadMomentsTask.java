@@ -12,10 +12,7 @@ public class LoadMomentsTask extends AsyncTask<List<String>, Void, List<Moment>>
         for (List<String> tagsList : params) {
             tags.addAll(tagsList);
         }
-        if (tags.isEmpty()) {
-            return MomentManager.getMoments();
-        } else {
-            return MomentManager.getMomentsByTags(tags);
-        }
+        //TODO: access MomentManager
+        return null;
     }
 }
