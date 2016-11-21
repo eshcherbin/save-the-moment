@@ -18,15 +18,15 @@ public class MomentManager {
     private static final String MOMENTS_TABLE = "moments";
     private static final String TAGS_TABLE = "tags";
 
-    private static final String MOMENT_ID = "id";
-    private static final String MOMENT_TITLE = "title";
-    private static final String MOMENT_DESCRIPTION = "description";
-    private static final String MOMENT_CAPTURING_TIME = "capturing_time";
-    private static final String MOMENT_LOCATION_LONGITUDE = "location_longitude";
-    private static final String MOMENT_LOCATION_LATITUDE = "location_latitude";
+    public static final String MOMENT_ID = "id";
+    public static final String MOMENT_TITLE = "title";
+    public static final String MOMENT_DESCRIPTION = "description";
+    public static final String MOMENT_CAPTURING_TIME = "capturing_time";
+    public static final String MOMENT_LOCATION_LONGITUDE = "location_longitude";
+    public static final String MOMENT_LOCATION_LATITUDE = "location_latitude";
 
-    private static final String TAG_MOMENT_ID = "moment_id";
-    private static final String TAG_NAME = "name";
+    public static final String TAG_MOMENT_ID = "moment_id";
+    public static final String TAG_NAME = "name";
 
     private static final String[] MOMENT_COLUMNS = new String[]{MOMENT_ID, MOMENT_TITLE,
             MOMENT_DESCRIPTION, MOMENT_CAPTURING_TIME,

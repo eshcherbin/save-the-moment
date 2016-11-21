@@ -5,6 +5,7 @@ import android.location.Location;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 public class Moment implements Serializable {
     private String id;
@@ -12,10 +13,10 @@ public class Moment implements Serializable {
     private String description;
     private Calendar capturingTime;
     private Location location;
-    private List<String> tags;
+    private Set<String> tags;
 
     public Moment(String id, String title, String description, Calendar capturingTime,
-                  Location location, List<String> tags) {
+                  Location location, Set<String> tags) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -44,7 +45,7 @@ public class Moment implements Serializable {
         return location;
     }
 
-    public List<String> getTags() {
+    public Set<String> getTags() {
         return tags;
     }
 }
