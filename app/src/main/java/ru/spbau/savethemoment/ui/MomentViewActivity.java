@@ -2,6 +2,7 @@ package ru.spbau.savethemoment.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -25,10 +26,22 @@ public class MomentViewActivity extends Activity {
         description.setText(moment.getDescription());
 
         TextView location = (TextView) findViewById(R.id.textview_momentview_location);
-        if (moment.getLocation() == null) {
-            location.setText("Location is unknown");
+        if (moment.getAddress() == null) {
+            if (moment.getLocation() == null) {
+                location.setText("Location is unknown");
+            } else {
+                location.setText("Show on map");
+            }
         } else {
-            //TODO: displaying location
+            location.setText(moment.getAddress());
+        }
+        if (moment.getLocation() != null) {
+            location.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO: on click display the moment on map
+                }
+            });
         }
 
         TextView capturingTime = (TextView) findViewById(R.id.textview_momentview_capturingtime);
