@@ -49,12 +49,14 @@ public class LoadMomentsTask extends AsyncTask<Set<String>, Void, List<Moment>> 
                     cursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE)));
             location.setLatitude(cursor.getDouble(
                     cursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE)));
+            String address =
+                    cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_ADDRESS));
             Set<String> momentTags = new HashSet<>();
             Cursor tagsCursor = momentManager.getTagsByMomentId(id);
             while (tagsCursor.moveToNext()) {
                 momentTags.add(tagsCursor.getString(tagsCursor.getColumnIndexOrThrow(MomentManager.TAG_NAME)));
             }
-            result.add(new Moment(id, title, description, capturingTime, location, momentTags));
+            result.add(new Moment(id, title, description, capturingTime, location, address, momentTags));
         }
         return result;
     }

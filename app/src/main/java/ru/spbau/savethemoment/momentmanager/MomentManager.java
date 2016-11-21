@@ -97,6 +97,7 @@ public class MomentManager {
         momentContentValues.put(MOMENT_CAPTURING_TIME, moment.getCapturingTime().getTimeInMillis());
         momentContentValues.put(MOMENT_LOCATION_LONGITUDE, moment.getLocation().getLongitude());
         momentContentValues.put(MOMENT_LOCATION_LATITUDE, moment.getLocation().getLatitude());
+        momentContentValues.put(MOMENT_ADDRESS, moment.getAddress());
         database.insertOrThrow(MOMENTS_TABLE, null, momentContentValues);
         for (String tag : moment.getTags()) {
             ContentValues tagContentValues = new ContentValues();
