@@ -24,24 +24,26 @@ public class MomentManager {
     public static final String MOMENT_CAPTURING_TIME = "capturing_time";
     public static final String MOMENT_LOCATION_LONGITUDE = "location_longitude";
     public static final String MOMENT_LOCATION_LATITUDE = "location_latitude";
+    public static final String MOMENT_ADDRESS = "address";
 
     public static final String TAG_MOMENT_ID = "moment_id";
     public static final String TAG_NAME = "name";
 
     private static final String[] MOMENT_COLUMNS = new String[]{MOMENT_ID, MOMENT_TITLE,
             MOMENT_DESCRIPTION, MOMENT_CAPTURING_TIME,
-            MOMENT_LOCATION_LONGITUDE, MOMENT_LOCATION_LATITUDE};
+            MOMENT_LOCATION_LONGITUDE, MOMENT_LOCATION_LATITUDE, MOMENT_ADDRESS};
 
     private static final String DB_MOMENTS_CREATE = "create table " + MOMENTS_TABLE + "("
             + MOMENT_ID + " text, "
-            + MOMENT_TITLE + "text, "
-            + MOMENT_DESCRIPTION + "text, "
-            + MOMENT_CAPTURING_TIME + "integer, "
-            + MOMENT_LOCATION_LONGITUDE + "double, "
-            + MOMENT_LOCATION_LATITUDE + "double" + ");";
+            + MOMENT_TITLE + " text, "
+            + MOMENT_DESCRIPTION + " text, "
+            + MOMENT_CAPTURING_TIME + " integer, "
+            + MOMENT_LOCATION_LONGITUDE + " double, "
+            + MOMENT_LOCATION_LATITUDE + " double, "
+            + MOMENT_ADDRESS + " text " + ");";
     private static final String DB_TAGS_CREATE = "create table " + TAGS_TABLE + "("
             + TAG_MOMENT_ID + " integer, "
-            + TAG_NAME + "text" + ");";
+            + TAG_NAME + " text " + ");";
 
     private DBHelper dbHelper;
 
