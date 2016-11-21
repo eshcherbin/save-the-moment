@@ -14,24 +14,24 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button main_list_button = (Button) findViewById(R.id.button_main_list);
-        main_list_button.setOnClickListener(new View.OnClickListener() {
+        Button mainListButton = (Button) findViewById(R.id.button_main_list);
+        mainListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //TODO: handle click (start List of moments activity)
             }
         });
 
-        Button main_map_button = (Button) findViewById(R.id.button_main_map);
-        main_map_button.setOnClickListener(new View.OnClickListener() {
+        Button mainMapButton = (Button) findViewById(R.id.button_main_map);
+        mainMapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //TODO: handle click (start Map of moments activity)
             }
         });
 
-        Button main_create_button = (Button) findViewById(R.id.button_main_create);
-        main_create_button.setOnClickListener(new View.OnClickListener() {
+        Button mainCreateButton = (Button) findViewById(R.id.button_main_create);
+        mainCreateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //TODO: handle click (Create new moment and start View moment activity)
