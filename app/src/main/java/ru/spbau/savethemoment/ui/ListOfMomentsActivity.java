@@ -97,8 +97,8 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
         }
 
         private static class ViewHolder {
-            public TextView titleView;
-            public TextView capturingTimeView;
+            public final TextView titleView;
+            public final TextView capturingTimeView;
 
             public ViewHolder(TextView titleView, TextView capturingTimeView) {
                 this.titleView = titleView;
@@ -109,15 +109,20 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
     }
 
     private static class MomentsLoader extends AsyncTaskLoader<Cursor> {
+        private final MomentManager momentManager;
         private Cursor data;
 
         public MomentsLoader(Context context) {
             super(context);
+            momentManager = new MomentManager(context);
         }
 
         @Override
         protected void onReset() {
             super.onReset();
+            if (data != null) {
+                data.close();
+            }
             data = null;
         }
 
@@ -132,7 +137,6 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
 
         @Override
         public Cursor loadInBackground() {
-            MomentManager momentManager = new MomentManager(getContext());
             data = momentManager.getMoments();
             return data;
         }
