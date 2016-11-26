@@ -47,6 +47,18 @@ public class MomentManagerTest {
     }
 
     @Test
+    public void getMomentByIdTest() {
+        moment = new Moment("Id", "Title", "Description", Calendar.getInstance(),
+                new Location(""), "Address", Collections.<String>emptySet());
+        momentManager.insertMoment(moment);
+        Cursor cursor = momentManager.getMomentById("Id");
+        assertTrue(cursor.moveToNext());
+        assertEquals("Title", cursor.getString(cursor.getColumnIndex(MomentManager.MOMENT_TITLE)));
+        cursor = momentManager.getMomentById("Id2");
+        assertFalse(cursor.moveToNext());
+    }
+
+    @Test
     public void getMomentsEmptyTest() {
         Cursor cursor = momentManager.getMoments();
         assertTrue(cursor.isAfterLast());

@@ -34,7 +34,7 @@ public class MomentManager {
             MOMENT_LOCATION_LONGITUDE, MOMENT_LOCATION_LATITUDE, MOMENT_ADDRESS};
 
     private static final String DB_MOMENTS_CREATE = "create table " + MOMENTS_TABLE + "("
-            + MOMENT_ID + " text, "
+            + MOMENT_ID + " text primary key not null, "
             + MOMENT_TITLE + " text, "
             + MOMENT_DESCRIPTION + " text, "
             + MOMENT_CAPTURING_TIME + " integer, "
@@ -42,8 +42,10 @@ public class MomentManager {
             + MOMENT_LOCATION_LATITUDE + " double, "
             + MOMENT_ADDRESS + " text " + ");";
     private static final String DB_TAGS_CREATE = "create table " + TAGS_TABLE + "("
-            + TAG_MOMENT_ID + " integer, "
-            + TAG_NAME + " text " + ");";
+            + TAG_MOMENT_ID + " integer not null, "
+            + TAG_NAME + " text, "
+            + "foreign key(" + TAG_MOMENT_ID + ") references " + MOMENTS_TABLE + "(" + MOMENT_ID + ") on delete cascade"
+            + ");";
 
     private DBHelper dbHelper;
 
@@ -54,6 +56,12 @@ public class MomentManager {
     public Cursor getMoments() {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         return database.query(MOMENTS_TABLE, MOMENT_COLUMNS, null, null, null, null, null);
+    }
+
+    public Cursor getMomentById(String momentId) {
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+        return database.query(MOMENTS_TABLE, MOMENT_COLUMNS, MOMENT_ID + "=?",
+                new String[]{momentId}, null, null, null);
     }
 
     public Cursor getTagsByMomentId(String momentId) {
@@ -84,7 +92,6 @@ public class MomentManager {
 
     public void deleteMomentById(String momentId) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        database.delete(TAGS_TABLE, TAG_MOMENT_ID + "=?", new String[]{momentId});
         database.delete(MOMENTS_TABLE, MOMENT_ID + "=?", new String[]{momentId});
     }
 
@@ -120,6 +127,12 @@ public class MomentManager {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        }
+
+        @Override
+        public void onConfigure(SQLiteDatabase db) {
+            super.onConfigure(db);
+            db.setForeignKeyConstraintsEnabled(true);
         }
     }
 }
