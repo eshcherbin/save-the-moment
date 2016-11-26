@@ -2,4 +2,24 @@
     <string name="app_name">Save the moment</string>
     <string name="button_list_of_moments_filter_text">Filter</string>
     <string name="text_list_of_moments_tags_hint">Enter tags to filter</string>
+    <string name="button_main_list_text">List of moments</string>
+    <string name="button_main_map_text">Map of moments</string>
+    <string name="button_main_create_text">Create moment</string>
+    <string name="textview_momentview_title_text">Title</string>
+    <string name="textview_momentview_location_text">Location</string>
+    <string name="textview_momentview_description_text">Description</string>
+    <string name="textview_momentview_capturingtime_text">Capturing time</string>
+    <string name="menuitem_momentview_onmap_text">Show on map</string>
+    <string name="menuitem_momentview_edit_text">Edit</string>
+    <string name="menuitem_momenteditor_save_text">Save</string>
+    <string name="edittext_momenteditor_title_text">Title</string>
+    <string name="edittext_momenteditor_location_text">Location</string>
+    <string name="edittext_momenteditor_description_text">Description</string>
+    <string name="textview_momenteditor_capturingtime_date_text">Capturing date</string>
+    <string name="textview_momenteditor_capturingtime_time_text">Capturing time</string>
+    <string name="textview_momenteditor_location_text">Location</string>
+    <string name="button_momenteditor_editdate_text">Change date</string>
+    <string name="button_momenteditor_edittime_text">Change time</string>
+    <string name="button_momenteditor_editlocation_text">Change location</string>
+    <string name="text_list_of_moments_empty_text">No moments yet</string>
 </resources>
