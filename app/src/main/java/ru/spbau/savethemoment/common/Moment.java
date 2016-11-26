@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Moment implements Serializable {
-    private String id;
+    private UUID id;
     private String title;
     private String description;
     private Calendar capturingTime;
@@ -16,7 +16,7 @@ public class Moment implements Serializable {
     private String address;
     private Set<String> tags;
 
-    public Moment(String id, String title, String description, Calendar capturingTime,
+    public Moment(UUID id, String title, String description, Calendar capturingTime,
                   Location location, String address, Set<String> tags) {
         this.id = id;
         this.title = title;
@@ -27,7 +27,7 @@ public class Moment implements Serializable {
         this.tags = tags;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -74,8 +74,8 @@ public class Moment implements Serializable {
         this.capturingTime.set(Calendar.MINUTE, minute);
     }
 
-    public static Moment getCurrentMoment() {
-        return new Moment(UUID.randomUUID().toString(), "Title", "Description",
+    public static Moment createCurrentMoment() {
+        return new Moment(UUID.randomUUID(), "Title", "Description",
                 Calendar.getInstance(), null, null, null);
     }
 }

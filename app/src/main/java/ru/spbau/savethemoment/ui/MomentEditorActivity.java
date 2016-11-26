@@ -51,7 +51,7 @@ public class MomentEditorActivity extends AppCompatActivity {
         if (startedWithMoment) {
             moment = (Moment) getIntent().getSerializableExtra("Moment");
         } else {
-            moment = Moment.getCurrentMoment();
+            moment = Moment.createCurrentMoment();
         }
 
         initTitle();

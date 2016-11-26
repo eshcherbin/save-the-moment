@@ -100,7 +100,7 @@ public class MomentManager {
         try {
             database.beginTransaction();
             ContentValues momentContentValues = new ContentValues();
-            momentContentValues.put(MOMENT_ID, moment.getId());
+            momentContentValues.put(MOMENT_ID, moment.getId().toString());
             momentContentValues.put(MOMENT_TITLE, moment.getTitle());
             momentContentValues.put(MOMENT_DESCRIPTION, moment.getDescription());
             momentContentValues.put(MOMENT_CAPTURING_TIME, moment.getCapturingTime().getTimeInMillis());
@@ -110,7 +110,7 @@ public class MomentManager {
             database.insertOrThrow(MOMENTS_TABLE, null, momentContentValues);
             for (String tag : moment.getTags()) {
                 ContentValues tagContentValues = new ContentValues();
-                tagContentValues.put(TAG_MOMENT_ID, moment.getId());
+                tagContentValues.put(TAG_MOMENT_ID, moment.getId().toString());
                 tagContentValues.put(TAG_NAME, tag);
                 database.insertOrThrow(TAGS_TABLE, null, tagContentValues);
             }

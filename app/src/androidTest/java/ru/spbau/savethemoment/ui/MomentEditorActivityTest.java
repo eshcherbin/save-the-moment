@@ -33,7 +33,7 @@ public class MomentEditorActivityTest {
         Intent intent = new Intent();
         activityRule.launchActivity(intent);
 
-        Moment moment = Moment.getCurrentMoment();
+        Moment moment = Moment.createCurrentMoment();
 
         Espresso.onView(ViewMatchers.withId(R.id.edittext_momenteditor_title))
                 .check(ViewAssertions
@@ -46,7 +46,7 @@ public class MomentEditorActivityTest {
     @Test
     public void onCreateFromMomentView() throws Exception {
         Calendar calendar = Calendar.getInstance();
-        Moment moment = new Moment(UUID.randomUUID().toString(), "MyTitle", "MyDescription",
+        Moment moment = new Moment(UUID.randomUUID(), "MyTitle", "MyDescription",
                 calendar, null, "MyAddress", null);
         Intent intent = new Intent();
         intent.putExtra("Moment", moment);

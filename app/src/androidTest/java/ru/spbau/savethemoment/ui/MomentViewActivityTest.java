@@ -31,7 +31,7 @@ public class MomentViewActivityTest {
     public void onCreate() throws Exception {
         Intent intent = new Intent();
         Calendar calendar = Calendar.getInstance();
-        Moment moment = new Moment(UUID.randomUUID().toString(), "MyTitle", "MyDescription",
+        Moment moment = new Moment(UUID.randomUUID(), "MyTitle", "MyDescription",
                 calendar, null, "MyAddress", null);
         intent.putExtra("Moment", moment);
         activityRule.launchActivity(intent);
