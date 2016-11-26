@@ -18,7 +18,7 @@ public class MomentManager {
     private static final String MOMENTS_TABLE = "moments";
     private static final String TAGS_TABLE = "tags";
 
-    public static final String MOMENT_ID = "id";
+    public static final String MOMENT_ID = "_id";
     public static final String MOMENT_TITLE = "title";
     public static final String MOMENT_DESCRIPTION = "description";
     public static final String MOMENT_CAPTURING_TIME = "capturing_time";
