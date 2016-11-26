@@ -5,9 +5,10 @@ import android.location.Location;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Set;
+import java.util.UUID;
 
 public class Moment implements Serializable {
-    private String id;
+    private UUID id;
     private String title;
     private String description;
     private Calendar capturingTime;
@@ -15,7 +16,7 @@ public class Moment implements Serializable {
     private String address;
     private Set<String> tags;
 
-    public Moment(String id, String title, String description, Calendar capturingTime,
+    public Moment(UUID id, String title, String description, Calendar capturingTime,
                   Location location, String address, Set<String> tags) {
         this.id = id;
         this.title = title;
@@ -26,7 +27,7 @@ public class Moment implements Serializable {
         this.tags = tags;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -52,5 +53,29 @@ public class Moment implements Serializable {
 
     public Set<String> getTags() {
         return tags;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setCapturingDate(int year, int month, int day) {
+        this.capturingTime.set(Calendar.YEAR, year);
+        this.capturingTime.set(Calendar.MONTH, month);
+        this.capturingTime.set(Calendar.DAY_OF_MONTH, day);
+    }
+
+    public void setCapturingTime(int hour, int minute) {
+        this.capturingTime.set(Calendar.HOUR_OF_DAY, hour);
+        this.capturingTime.set(Calendar.MINUTE, minute);
+    }
+
+    public static Moment createCurrentMoment() {
+        return new Moment(UUID.randomUUID(), "Title", "Description",
+                Calendar.getInstance(), null, null, null);
     }
 }
