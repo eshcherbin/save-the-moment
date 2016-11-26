@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
@@ -30,7 +31,7 @@ public class MomentViewActivityTest {
     public void onCreate() throws Exception {
         Intent intent = new Intent();
         Calendar calendar = Calendar.getInstance();
-        Moment moment = new Moment("Id", "MyTitle", "MyDescription", calendar, null, "MyAddress", null);
+        Moment moment = new Moment(UUID.randomUUID(), "MyTitle", "MyDescription", calendar, null, "MyAddress", null);
         intent.putExtra("Moment", moment);
         activityRule.launchActivity(intent);
 
@@ -41,7 +42,7 @@ public class MomentViewActivityTest {
                 .check(ViewAssertions
                         .matches(ViewMatchers.withText("MyDescription")));
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd MMM yyyy hh:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd MMM yyyy hh:mm");
         Espresso.onView(ViewMatchers.withId(R.id.textview_momentview_capturingtime))
                 .check(ViewAssertions
                         .matches(ViewMatchers.withText(dateFormat.format(calendar.getTime()))));
