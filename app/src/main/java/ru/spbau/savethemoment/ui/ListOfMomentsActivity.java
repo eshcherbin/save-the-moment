@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,9 +37,16 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
         setContentView(R.layout.activity_list_of_moments);
 
         listViewMoments = (ListView) findViewById(R.id.listview_list_of_moments);
+        listViewMoments.setEmptyView(findViewById(R.id.text_list_of_moments_empty));
         listOfMomentsAdapter = new ListOfMomentsAdapter(this, null, 0);
         listViewMoments.setAdapter(listOfMomentsAdapter);
-        getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+        listViewMoments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //TODO: start MomentViewActivity
+            }
+        });
     }
 
     @Override
@@ -85,14 +93,32 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
     }
 
     private static class MomentsLoader extends AsyncTaskLoader<Cursor> {
+        private Cursor data;
+
         public MomentsLoader(Context context) {
             super(context);
         }
 
         @Override
+        protected void onReset() {
+            super.onReset();
+            data = null;
+        }
+
+        @Override
+        protected void onStartLoading() {
+            if (takeContentChanged() || data == null) {
+                forceLoad();
+            } else {
+                deliverResult(data);
+            }
+        }
+
+        @Override
         public Cursor loadInBackground() {
             MomentManager momentManager = new MomentManager(getContext());
-            return momentManager.getMoments();
+            data = momentManager.getMoments();
+            return data;
         }
     }
 }
