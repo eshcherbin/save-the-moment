@@ -7,4 +7,5 @@
     <string name="textview_momentview_location_text">Location</string>
     <string name="textview_momentview_description_text">Description</string>
     <string name="textview_momentview_capturingtime_text">Capturing time</string>
+    <string name="menuitem_momentview_onmap_text">Show on map</string>
 </resources>

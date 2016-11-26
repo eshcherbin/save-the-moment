@@ -30,7 +30,7 @@ public class MomentViewActivityTest {
     public void onCreate() throws Exception {
         Intent intent = new Intent();
         Calendar calendar = Calendar.getInstance();
-        Moment moment = new Moment("Id", "MyTitle", "MyDescription", null, calendar, null, null);
+        Moment moment = new Moment("Id", "MyTitle", "MyDescription", calendar, null, "MyAddress", null);
         intent.putExtra("Moment", moment);
         activityRule.launchActivity(intent);
 
@@ -48,7 +48,7 @@ public class MomentViewActivityTest {
 
         Espresso.onView(ViewMatchers.withId(R.id.textview_momentview_location))
                 .check(ViewAssertions
-                        .matches(ViewMatchers.withText("Location is unknown"))); 
+                        .matches(ViewMatchers.withText("MyAddress")));
     }
 
 }
