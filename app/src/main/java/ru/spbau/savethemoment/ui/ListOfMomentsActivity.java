@@ -73,22 +73,38 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return LayoutInflater.from(context).inflate(R.layout.listview_list_of_moments_item, parent, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.listview_list_of_moments_item, parent, false);
+            ViewHolder viewHolder =
+                    new ViewHolder((TextView) view.findViewById(R.id.text_list_of_moments_item_title),
+                                   (TextView) view.findViewById(R.id.text_list_of_moments_item_datetime));
+            view.setTag(viewHolder);
+            return view;
         }
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
-            TextView itemName = (TextView) view.findViewById(R.id.text_list_of_moments_item_title);
+            ViewHolder viewHolder = (ViewHolder) view.getTag();
+
+            TextView titleView = viewHolder.titleView;
             String title = cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_TITLE));
-            itemName.setText(title);
+            titleView.setText(title);
 
             long capturingTimeInMillis =
                     cursor.getLong(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_CAPTURING_TIME));
             SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_FORMAT);
-            TextView itemDatetime = (TextView) view.findViewById(R.id.text_list_of_moments_item_datetime);
-            itemDatetime.setText(dateFormat.format(capturingTimeInMillis));
+            TextView capturingTimeView = viewHolder.capturingTimeView;
+            capturingTimeView.setText(dateFormat.format(capturingTimeInMillis));
+        }
 
-            view.setTag(cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_ID)));
+        private static class ViewHolder {
+            public TextView titleView;
+            public TextView capturingTimeView;
+
+            public ViewHolder(TextView titleView, TextView capturingTimeView) {
+                this.titleView = titleView;
+                this.capturingTimeView = capturingTimeView;
+            }
+
         }
     }
 
