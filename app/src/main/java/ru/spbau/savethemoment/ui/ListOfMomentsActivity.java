@@ -3,11 +3,15 @@ package ru.spbau.savethemoment.ui;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,6 +28,7 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
 
     private static final int LOADER_ID = 0;
 
+    private Toolbar toolbar;
     private ListView listViewMoments;
     private ListOfMomentsAdapter listOfMomentsAdapter;
 
@@ -36,6 +41,9 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_of_moments);
 
+        toolbar = (Toolbar) findViewById(R.id.tool_bar_list_of_moments);
+        setSupportActionBar(toolbar);
+
         listViewMoments = (ListView) findViewById(R.id.listview_list_of_moments);
         listViewMoments.setEmptyView(findViewById(R.id.text_list_of_moments_empty));
         listOfMomentsAdapter = new ListOfMomentsAdapter(this, null, 0);
@@ -47,6 +55,23 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
                 //TODO: start MomentViewActivity
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_listofmoments, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menuitem_list_of_moments_new_moment) {
+            Intent intent = new Intent(this, MomentEditorActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return false;
     }
 
     @Override
