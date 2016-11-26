@@ -12,10 +12,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
 
 import ru.spbau.savethemoment.R;
+import ru.spbau.savethemoment.momentmanager.MomentManager;
 
-public class ListOfMomentsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Object> {
+public class ListOfMomentsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int LOADER_ID = 0;
 
@@ -34,25 +38,27 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
         listViewMoments = (ListView) findViewById(R.id.listview_list_of_moments);
         listOfMomentsAdapter = new ListOfMomentsAdapter(this, null, 0);
         listViewMoments.setAdapter(listOfMomentsAdapter);
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+        getLoaderManager().initLoader(LOADER_ID, null, this).forceLoad();
     }
 
     @Override
-    public Loader<Object> onCreateLoader(int id, Bundle args) {
-        return new
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new MomentsLoader(this);
     }
 
     @Override
-    public void onLoadFinished(Loader<Object> loader, Object data) {
-
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        listOfMomentsAdapter.changeCursor(data);
     }
 
     @Override
-    public void onLoaderReset(Loader<Object> loader) {
-
+    public void onLoaderReset(Loader<Cursor> loader) {
+        listOfMomentsAdapter.changeCursor(null);
     }
 
     private static class ListOfMomentsAdapter extends CursorAdapter {
+        private static final String DATETIME_FORMAT = "HH:mm dd.MM.yyyy";
+
         public ListOfMomentsAdapter(Context context, Cursor c, int flags) {
             super(context, c, flags);
         }
@@ -64,19 +70,29 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
+            TextView itemName = (TextView) view.findViewById(R.id.text_list_of_moments_item_title);
+            String title = cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_TITLE));
+            itemName.setText(title);
 
+            long capturingTimeInMillis =
+                    cursor.getLong(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_CAPTURING_TIME));
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DATETIME_FORMAT);
+            TextView itemDatetime = (TextView) view.findViewById(R.id.text_list_of_moments_item_datetime);
+            itemDatetime.setText(dateFormat.format(capturingTimeInMillis));
+
+            view.setTag(cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_ID)));
         }
     }
 
     private static class MomentsLoader extends AsyncTaskLoader<Cursor> {
-
         public MomentsLoader(Context context) {
             super(context);
         }
 
         @Override
         public Cursor loadInBackground() {
-            return null;
+            MomentManager momentManager = new MomentManager(getContext());
+            return momentManager.getMoments();
         }
     }
 }
