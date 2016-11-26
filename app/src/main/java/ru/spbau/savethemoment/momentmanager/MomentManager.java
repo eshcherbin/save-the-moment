@@ -97,20 +97,26 @@ public class MomentManager {
 
     public void insertMoment(Moment moment) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        ContentValues momentContentValues = new ContentValues();
-        momentContentValues.put(MOMENT_ID, moment.getId());
-        momentContentValues.put(MOMENT_TITLE, moment.getTitle());
-        momentContentValues.put(MOMENT_DESCRIPTION, moment.getDescription());
-        momentContentValues.put(MOMENT_CAPTURING_TIME, moment.getCapturingTime().getTimeInMillis());
-        momentContentValues.put(MOMENT_LOCATION_LONGITUDE, moment.getLocation().getLongitude());
-        momentContentValues.put(MOMENT_LOCATION_LATITUDE, moment.getLocation().getLatitude());
-        momentContentValues.put(MOMENT_ADDRESS, moment.getAddress());
-        database.insertOrThrow(MOMENTS_TABLE, null, momentContentValues);
-        for (String tag : moment.getTags()) {
-            ContentValues tagContentValues = new ContentValues();
-            tagContentValues.put(TAG_MOMENT_ID, moment.getId());
-            tagContentValues.put(TAG_NAME, tag);
-            database.insertOrThrow(TAGS_TABLE, null, tagContentValues);
+        try {
+            database.beginTransaction();
+            ContentValues momentContentValues = new ContentValues();
+            momentContentValues.put(MOMENT_ID, moment.getId());
+            momentContentValues.put(MOMENT_TITLE, moment.getTitle());
+            momentContentValues.put(MOMENT_DESCRIPTION, moment.getDescription());
+            momentContentValues.put(MOMENT_CAPTURING_TIME, moment.getCapturingTime().getTimeInMillis());
+            momentContentValues.put(MOMENT_LOCATION_LONGITUDE, moment.getLocation().getLongitude());
+            momentContentValues.put(MOMENT_LOCATION_LATITUDE, moment.getLocation().getLatitude());
+            momentContentValues.put(MOMENT_ADDRESS, moment.getAddress());
+            database.insertOrThrow(MOMENTS_TABLE, null, momentContentValues);
+            for (String tag : moment.getTags()) {
+                ContentValues tagContentValues = new ContentValues();
+                tagContentValues.put(TAG_MOMENT_ID, moment.getId());
+                tagContentValues.put(TAG_NAME, tag);
+                database.insertOrThrow(TAGS_TABLE, null, tagContentValues);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
         }
     }
 
