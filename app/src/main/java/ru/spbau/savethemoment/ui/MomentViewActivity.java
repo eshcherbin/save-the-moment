@@ -63,7 +63,7 @@ public class MomentViewActivity extends AppCompatActivity {
             moment = (Moment) data.getSerializableExtra("Moment");
             display();
         } else {
-            assert(false);
+            assert false : "MomentEditor didn't return a moment";
         }
     }
 
