@@ -4,7 +4,6 @@ import android.location.Location;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Set;
 
 public class Moment implements Serializable {
