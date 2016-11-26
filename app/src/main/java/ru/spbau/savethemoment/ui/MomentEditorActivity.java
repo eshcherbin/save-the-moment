@@ -36,7 +36,7 @@ public class MomentEditorActivity extends AppCompatActivity {
     private Button editTime;
     private Button editLocation;
     private Context context;
-    private String parent;
+    private boolean startedWithMoment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +47,10 @@ public class MomentEditorActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momenteditor);
         setSupportActionBar(toolbar);
 
-        parent = getIntent().getStringExtra("Parent");
-
-        if (parent.equals("MomentView")) {
+        startedWithMoment = getIntent().hasExtra("Moment");
+        if (startedWithMoment) {
             moment = (Moment) getIntent().getSerializableExtra("Moment");
-        } else if (parent.equals("Main")) {
+        } else {
             moment = Moment.getCurrentMoment();
         }
 
@@ -73,13 +72,13 @@ public class MomentEditorActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.menuitem_momenteditor_save) {
             saveTextChanges();
-            if (parent.equals("MomentView")) {
+            if (startedWithMoment) {
                 //TODO: call MomentManager to save changes
                 Intent intent = new Intent();
                 intent.putExtra("Moment", moment);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
-            } else if (parent.equals("Main")) {
+            } else {
                 //TODO: call MomentManager to save new moment
                 Intent intent = new Intent(this, MomentViewActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -152,10 +151,6 @@ public class MomentEditorActivity extends AppCompatActivity {
     }
 
     private void initLocation() {
-        if (parent.equals("Main")) {
-            //TODO: get current location
-        }
-
         location = (TextView) findViewById(R.id.textview_momenteditor_location);
         location.setText(moment.getAddress());
 

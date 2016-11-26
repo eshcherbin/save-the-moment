@@ -31,7 +31,6 @@ public class MomentEditorActivityTest {
     @Test
     public void onCreateFromMain() throws Exception {
         Intent intent = new Intent();
-        intent.putExtra("Parent", "Main");
         activityRule.launchActivity(intent);
 
         Moment moment = Moment.getCurrentMoment();
@@ -47,9 +46,9 @@ public class MomentEditorActivityTest {
     @Test
     public void onCreateFromMomentView() throws Exception {
         Calendar calendar = Calendar.getInstance();
-        Moment moment = new Moment(UUID.randomUUID(), "MyTitle", "MyDescription", calendar, null, "MyAddress", null);
+        Moment moment = new Moment(UUID.randomUUID().toString(), "MyTitle", "MyDescription",
+                calendar, null, "MyAddress", null);
         Intent intent = new Intent();
-        intent.putExtra("Parent", "MomentView");
         intent.putExtra("Moment", moment);
 
         activityRule.launchActivity(intent);

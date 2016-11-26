@@ -59,11 +59,11 @@ public class MomentViewActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == EDIT_MOMENT) {
-            if(resultCode == Activity.RESULT_OK){
-                moment = (Moment) data.getSerializableExtra("Moment");
-                display();
-            }
+        if (requestCode == EDIT_MOMENT && resultCode == Activity.RESULT_OK) {
+            moment = (Moment) data.getSerializableExtra("Moment");
+            display();
+        } else {
+            throw new RuntimeException("MomentEditor didn't return a moment");
         }
     }
 
