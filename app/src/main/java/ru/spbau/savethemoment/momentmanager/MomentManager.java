@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.Set;
+import java.util.UUID;
 
 import ru.spbau.savethemoment.common.Moment;
 
@@ -58,16 +59,16 @@ public class MomentManager {
         return database.query(MOMENTS_TABLE, MOMENT_COLUMNS, null, null, null, null, null);
     }
 
-    public Cursor getMomentById(String momentId) {
+    public Cursor getMomentById(UUID momentId) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         return database.query(MOMENTS_TABLE, MOMENT_COLUMNS, MOMENT_ID + "=?",
-                new String[]{momentId}, null, null, null);
+                new String[]{momentId.toString()}, null, null, null);
     }
 
-    public Cursor getTagsByMomentId(String momentId) {
+    public Cursor getTagsByMomentId(UUID momentId) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         return database.query(TAGS_TABLE, new String[]{TAG_NAME}, TAG_MOMENT_ID + "=?",
-                new String[]{momentId}, null, null, null);
+                new String[]{momentId.toString()}, null, null, null);
     }
 
     public Cursor getMomentsByTags(Set<String> tags) {
@@ -90,9 +91,9 @@ public class MomentManager {
                         + String.valueOf(tags.size()), null);
     }
 
-    public void deleteMomentById(String momentId) {
+    public void deleteMomentById(UUID momentId) {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
-        database.delete(MOMENTS_TABLE, MOMENT_ID + "=?", new String[]{momentId});
+        database.delete(MOMENTS_TABLE, MOMENT_ID + "=?", new String[]{momentId.toString()});
     }
 
     public void insertMoment(Moment moment) {

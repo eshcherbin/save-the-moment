@@ -20,6 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
@@ -51,7 +52,13 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
         listViewMoments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //TODO: start MomentViewActivity
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                String stringMomentId = cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_ID));
+                UUID momentId =
+                        UUID.fromString(stringMomentId);
+                Intent intent = new Intent(ListOfMomentsActivity.this, MomentViewActivity.class);
+                intent.putExtra("MomentId", momentId);
+                startActivity(intent);
             }
         });
     }
