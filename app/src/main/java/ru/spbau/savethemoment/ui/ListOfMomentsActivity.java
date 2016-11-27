@@ -48,7 +48,6 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
         listViewMoments.setEmptyView(findViewById(R.id.text_list_of_moments_empty));
         listOfMomentsAdapter = new ListOfMomentsAdapter(this, null, 0);
         listViewMoments.setAdapter(listOfMomentsAdapter);
-        getLoaderManager().initLoader(LOADER_ID, null, this);
         listViewMoments.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -72,6 +71,12 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             return true;
         }
         return false;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
     @Override
