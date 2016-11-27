@@ -49,7 +49,7 @@ public class MomentEditorActivity extends AppCompatActivity {
 
         startedWithMoment = getIntent().hasExtra("Moment");
         if (startedWithMoment) {
-            moment = (Moment) getIntent().getSerializableExtra("Moment");
+            moment = getIntent().getParcelableExtra("Moment");
         } else {
             moment = Moment.createCurrentMoment();
         }

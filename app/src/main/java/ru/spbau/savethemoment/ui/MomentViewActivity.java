@@ -1,7 +1,11 @@
 package ru.spbau.savethemoment.ui;
 
 import android.app.Activity;
+import android.app.LoaderManager;
+import android.content.AsyncTaskLoader;
+import android.content.Context;
 import android.content.Intent;
+import android.content.Loader;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,14 +14,18 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
+import ru.spbau.savethemoment.momentmanager.MomentManager;
 
-public class MomentViewActivity extends AppCompatActivity {
+public class MomentViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Moment> {
 
+    private static final int LOADER_ID = 0;
     private static final int EDIT_MOMENT = 1;
     private Toolbar toolbar;
+    private UUID momentId;
     private Moment moment;
 
     @Override
@@ -26,11 +34,26 @@ public class MomentViewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_momentview);
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
+
+        momentId = (UUID) getIntent().getSerializableExtra("MomentId");
+        getLoaderManager().initLoader(LOADER_ID, null, this);
+    }
+
+    @Override
+    public Loader<Moment> onCreateLoader(int id, Bundle args) {
+        return new MomentLoader(this, momentId);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Moment> loader, Moment data) {
+        moment = data;
         setSupportActionBar(toolbar);
-
-        moment = (Moment) getIntent().getSerializableExtra("Moment");
-
         display();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Moment> loader) {
+        moment = null;
     }
 
     @Override
@@ -60,7 +83,7 @@ public class MomentViewActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == EDIT_MOMENT && resultCode == Activity.RESULT_OK) {
-            moment = (Moment) data.getSerializableExtra("Moment");
+            moment = data.getParcelableExtra("Moment");
             display();
         } else {
             assert false : "MomentEditor didn't return a moment";
@@ -88,4 +111,36 @@ public class MomentViewActivity extends AppCompatActivity {
         //TODO: displaying media content
     }
 
+    private static class MomentLoader extends AsyncTaskLoader<Moment> {
+        private MomentManager momentManager;
+        private UUID momentId;
+        private Moment data;
+
+        public MomentLoader(Context context, UUID momentId) {
+            super(context);
+            momentManager = new MomentManager(context);
+            this.momentId = momentId;
+        }
+
+        @Override
+        protected void onReset() {
+            super.onReset();
+            data = null;
+        }
+
+        @Override
+        protected void onStartLoading() {
+            if (takeContentChanged() || data == null) {
+                forceLoad();
+            } else {
+                deliverResult(data);
+            }
+        }
+
+        @Override
+        public Moment loadInBackground() {
+            data = momentManager.getMomentById(momentId);
+            return data;
+        }
+    }
 }
