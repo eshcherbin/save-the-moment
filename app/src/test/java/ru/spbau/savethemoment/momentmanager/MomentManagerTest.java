@@ -55,11 +55,11 @@ public class MomentManagerTest {
         moment = new Moment(id, "Title", "Description", Calendar.getInstance(),
                 new Location(""), "Address", Collections.<String>emptySet());
         momentManager.insertMoment(moment);
-        Cursor cursor = momentManager.getMomentById(id);
-        assertTrue(cursor.moveToNext());
-        assertEquals("Title", cursor.getString(cursor.getColumnIndex(MomentManager.MOMENT_TITLE)));
-        cursor = momentManager.getMomentById(id2);
-        assertFalse(cursor.moveToNext());
+        Moment result = momentManager.getMomentById(id);
+        assertNotNull(result);
+        assertEquals("Title", result.getTitle());
+        result = momentManager.getMomentById(id2);
+        assertNull(result);
     }
 
     @Test
@@ -95,15 +95,8 @@ public class MomentManagerTest {
         moment = new Moment(id, "Title", "Description", Calendar.getInstance(),
                 new Location(""), "Address", ImmutableSet.of("testTag", "anotherTestTag"));
         momentManager.insertMoment(moment);
-        Cursor cursor = momentManager.getTagsByMomentId(moment.getId());
-        assertArrayEquals(new String[]{MomentManager.TAG_NAME}, cursor.getColumnNames());
-        Set<String> tags = new HashSet<>();
-        assertTrue(cursor.moveToNext());
-        tags.add(cursor.getString(cursor.getColumnIndex(MomentManager.TAG_NAME)));
-        assertTrue(cursor.moveToNext());
-        tags.add(cursor.getString(cursor.getColumnIndex(MomentManager.TAG_NAME)));
-        assertFalse(cursor.moveToNext());
-        assertEquals(moment.getTags(), tags);
+        Set<String> resultTags = momentManager.getTagsByMomentId(moment.getId());
+        assertEquals(moment.getTags(), resultTags);
     }
 
     @Test

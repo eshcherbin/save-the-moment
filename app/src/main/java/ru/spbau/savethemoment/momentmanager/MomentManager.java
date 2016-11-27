@@ -68,24 +68,27 @@ public class MomentManager {
         database.beginTransaction();
         Cursor momentCursor = database.query(MOMENTS_TABLE, MOMENT_COLUMNS, MOMENT_ID + "=?",
                 new String[]{momentId.toString()}, null, null, null);
-        momentCursor.moveToFirst();
-        String title =
-                momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_TITLE));
-        String description =
-                momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_DESCRIPTION));
-        Calendar capturingTime = new GregorianCalendar();
-        capturingTime.setTimeInMillis(momentCursor.getLong(
-                momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_CAPTURING_TIME)));
-        Location location = new Location("");
-        location.setLongitude(momentCursor.getDouble(
-                momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE)));
-        location.setLatitude(momentCursor.getDouble(
-                momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE)));
-        String address = momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_ADDRESS));
-        Set<String> momentTags = getTagsByMomentId(momentId);
-        database.setTransactionSuccessful();
-        database.endTransaction();
-        return new Moment(momentId, title, description, capturingTime, location, address, momentTags);
+        if (momentCursor.moveToFirst()) {
+            String title =
+                    momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_TITLE));
+            String description =
+                    momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_DESCRIPTION));
+            Calendar capturingTime = new GregorianCalendar();
+            capturingTime.setTimeInMillis(momentCursor.getLong(
+                    momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_CAPTURING_TIME)));
+            Location location = new Location("");
+            location.setLongitude(momentCursor.getDouble(
+                    momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE)));
+            location.setLatitude(momentCursor.getDouble(
+                    momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE)));
+            String address = momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_ADDRESS));
+            Set<String> momentTags = getTagsByMomentId(momentId);
+            database.setTransactionSuccessful();
+            database.endTransaction();
+            return new Moment(momentId, title, description, capturingTime, location, address, momentTags);
+        } else {
+            return null;
+        }
     }
 
     public Cursor getMomentsByTags(Set<String> tags) {
@@ -138,7 +141,7 @@ public class MomentManager {
         }
     }
 
-    private Set<String> getTagsByMomentId(UUID momentId) {
+    protected Set<String> getTagsByMomentId(UUID momentId) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         Cursor tagsCursor = database.query(TAGS_TABLE, new String[]{TAG_NAME}, TAG_MOMENT_ID + "=?",
                 new String[]{momentId.toString()}, null, null, null);
