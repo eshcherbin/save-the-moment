@@ -6,8 +6,6 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.database.Cursor;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,10 +14,6 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
@@ -89,7 +83,7 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == EDIT_MOMENT && resultCode == Activity.RESULT_OK) {
-            moment = (Moment) data.getSerializableExtra("Moment");
+            moment = data.getParcelableExtra("Moment");
             display();
         } else {
             assert false : "MomentEditor didn't return a moment";
