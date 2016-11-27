@@ -5,7 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -59,10 +63,33 @@ public class MomentManager {
         return database.query(MOMENTS_TABLE, MOMENT_COLUMNS, null, null, null, null, null);
     }
 
-    public Cursor getMomentById(UUID momentId) {
+    public Moment getMomentById(UUID momentId) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
-        return database.query(MOMENTS_TABLE, MOMENT_COLUMNS, MOMENT_ID + "=?",
+        database.beginTransaction();
+        Cursor momentCursor = database.query(MOMENTS_TABLE, MOMENT_COLUMNS, MOMENT_ID + "=?",
                 new String[]{momentId.toString()}, null, null, null);
+        momentCursor.moveToFirst();
+        String title =
+                momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_TITLE));
+        String description =
+                momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_DESCRIPTION));
+        Calendar capturingTime = new GregorianCalendar();
+        capturingTime.setTimeInMillis(momentCursor.getLong(
+                momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_CAPTURING_TIME)));
+        Location location = new Location("");
+        location.setLongitude(momentCursor.getDouble(
+                momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE)));
+        location.setLatitude(momentCursor.getDouble(
+                momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE)));
+        String address = momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_ADDRESS));
+        Set<String> momentTags = new HashSet<>();
+        Cursor tagsCursor = getTagsByMomentId(momentId);
+        while (tagsCursor.moveToNext()) {
+            momentTags.add(tagsCursor.getString(tagsCursor.getColumnIndexOrThrow(MomentManager.TAG_NAME)));
+        }
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        return new Moment(momentId, title, description, capturingTime, location, address, momentTags);
     }
 
     public Cursor getTagsByMomentId(UUID momentId) {

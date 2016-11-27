@@ -145,27 +145,7 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
 
         @Override
         public Moment loadInBackground() {
-            Cursor cursor = momentManager.getMomentById(momentId);
-            cursor.moveToFirst();
-            String title =
-                    cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_TITLE));
-            String description =
-                    cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_DESCRIPTION));
-            Calendar capturingTime = new GregorianCalendar();
-            capturingTime.setTimeInMillis(cursor.getLong(
-                    cursor.getColumnIndexOrThrow(MomentManager.MOMENT_CAPTURING_TIME)));
-            Location location = new Location("");
-            location.setLongitude(cursor.getDouble(
-                    cursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE)));
-            location.setLatitude(cursor.getDouble(
-                    cursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE)));
-            String address = cursor.getString(cursor.getColumnIndexOrThrow(MomentManager.MOMENT_ADDRESS));
-            Set<String> momentTags = new HashSet<>();
-            Cursor tagsCursor = momentManager.getTagsByMomentId(momentId);
-            while (tagsCursor.moveToNext()) {
-                momentTags.add(tagsCursor.getString(tagsCursor.getColumnIndexOrThrow(MomentManager.TAG_NAME)));
-            }
-            data = new Moment(momentId, title, description, capturingTime, location, address, momentTags);
+            data = momentManager.getMomentById(momentId);
             return data;
         }
     }
