@@ -40,15 +40,15 @@ public class MomentManager {
 
     private static final String DB_MOMENTS_CREATE = "create table " + MOMENTS_TABLE + "("
             + MOMENT_ID + " text primary key not null, "
-            + MOMENT_TITLE + " text, "
+            + MOMENT_TITLE + " text not null, "
             + MOMENT_DESCRIPTION + " text, "
-            + MOMENT_CAPTURING_TIME + " integer, "
+            + MOMENT_CAPTURING_TIME + " integer not null, "
             + MOMENT_LOCATION_LONGITUDE + " double, "
             + MOMENT_LOCATION_LATITUDE + " double, "
             + MOMENT_ADDRESS + " text " + ");";
     private static final String DB_TAGS_CREATE = "create table " + TAGS_TABLE + "("
-            + TAG_MOMENT_ID + " integer not null, "
-            + TAG_NAME + " text, "
+            + TAG_MOMENT_ID + " text not null, "
+            + TAG_NAME + " text not null, "
             + "foreign key(" + TAG_MOMENT_ID + ") references " + MOMENTS_TABLE + "(" + MOMENT_ID + ") on delete cascade"
             + ");";
 
@@ -71,17 +71,28 @@ public class MomentManager {
         if (momentCursor.moveToFirst()) {
             String title =
                     momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_TITLE));
-            String description =
-                    momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_DESCRIPTION));
+            int descriptionColumnIndex = momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_DESCRIPTION);
+            String description = momentCursor.isNull(descriptionColumnIndex) ? null
+                    : momentCursor.getString(descriptionColumnIndex);
             Calendar capturingTime = new GregorianCalendar();
             capturingTime.setTimeInMillis(momentCursor.getLong(
                     momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_CAPTURING_TIME)));
-            Location location = new Location("");
-            location.setLongitude(momentCursor.getDouble(
-                    momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE)));
-            location.setLatitude(momentCursor.getDouble(
-                    momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE)));
-            String address = momentCursor.getString(momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_ADDRESS));
+            int locationLongitudeColumnIndex =
+                    momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE);
+            int locationLatitudeColumnIndex =
+                    momentCursor.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE);
+            Location location;
+            if (momentCursor.isNull(locationLatitudeColumnIndex) ||
+                    momentCursor.isNull(locationLongitudeColumnIndex)) {
+                location = null;
+            } else {
+                location = new Location("");
+                location.setLongitude(momentCursor.getDouble(locationLongitudeColumnIndex));
+                location.setLatitude(momentCursor.getDouble(locationLatitudeColumnIndex));
+            }
+            int addressColumnIndex = momentCursor.getColumnIndexOrThrow(MOMENT_ADDRESS);
+            String address = momentCursor.isNull(addressColumnIndex) ? null
+                    : momentCursor.getString(addressColumnIndex);
             Set<String> momentTags = getTagsByMomentId(momentId);
             database.setTransactionSuccessful();
             database.endTransaction();
@@ -123,17 +134,25 @@ public class MomentManager {
             ContentValues momentContentValues = new ContentValues();
             momentContentValues.put(MOMENT_ID, moment.getId().toString());
             momentContentValues.put(MOMENT_TITLE, moment.getTitle());
-            momentContentValues.put(MOMENT_DESCRIPTION, moment.getDescription());
+            if (moment.getDescription() != null) {
+                momentContentValues.put(MOMENT_DESCRIPTION, moment.getDescription());
+            }
             momentContentValues.put(MOMENT_CAPTURING_TIME, moment.getCapturingTime().getTimeInMillis());
-            momentContentValues.put(MOMENT_LOCATION_LONGITUDE, moment.getLocation().getLongitude());
-            momentContentValues.put(MOMENT_LOCATION_LATITUDE, moment.getLocation().getLatitude());
-            momentContentValues.put(MOMENT_ADDRESS, moment.getAddress());
+            if (moment.getLocation() != null) {
+                momentContentValues.put(MOMENT_LOCATION_LONGITUDE, moment.getLocation().getLongitude());
+                momentContentValues.put(MOMENT_LOCATION_LATITUDE, moment.getLocation().getLatitude());
+            }
+            if (moment.getAddress() != null) {
+                momentContentValues.put(MOMENT_ADDRESS, moment.getAddress());
+            }
             database.insertOrThrow(MOMENTS_TABLE, null, momentContentValues);
-            for (String tag : moment.getTags()) {
-                ContentValues tagContentValues = new ContentValues();
-                tagContentValues.put(TAG_MOMENT_ID, moment.getId().toString());
-                tagContentValues.put(TAG_NAME, tag);
-                database.insertOrThrow(TAGS_TABLE, null, tagContentValues);
+            if (moment.getTags() != null) {
+                for (String tag : moment.getTags()) {
+                    ContentValues tagContentValues = new ContentValues();
+                    tagContentValues.put(TAG_MOMENT_ID, moment.getId().toString());
+                    tagContentValues.put(TAG_NAME, tag);
+                    database.insertOrThrow(TAGS_TABLE, null, tagContentValues);
+                }
             }
             database.setTransactionSuccessful();
         } finally {
@@ -147,19 +166,27 @@ public class MomentManager {
             database.beginTransaction();
             ContentValues momentContentValues = new ContentValues();
             momentContentValues.put(MOMENT_TITLE, moment.getTitle());
-            momentContentValues.put(MOMENT_DESCRIPTION, moment.getDescription());
+            if (moment.getDescription() != null) {
+                momentContentValues.put(MOMENT_DESCRIPTION, moment.getDescription());
+            }
             momentContentValues.put(MOMENT_CAPTURING_TIME, moment.getCapturingTime().getTimeInMillis());
-            momentContentValues.put(MOMENT_LOCATION_LONGITUDE, moment.getLocation().getLongitude());
-            momentContentValues.put(MOMENT_LOCATION_LATITUDE, moment.getLocation().getLatitude());
-            momentContentValues.put(MOMENT_ADDRESS, moment.getAddress());
+            if (moment.getLocation() != null) {
+                momentContentValues.put(MOMENT_LOCATION_LONGITUDE, moment.getLocation().getLongitude());
+                momentContentValues.put(MOMENT_LOCATION_LATITUDE, moment.getLocation().getLatitude());
+            }
+            if (moment.getAddress() != null) {
+                momentContentValues.put(MOMENT_ADDRESS, moment.getAddress());
+            }
             database.update(MOMENTS_TABLE,
                     momentContentValues, MOMENT_ID + "=?", new String[]{moment.getId().toString()});
             database.delete(TAGS_TABLE, TAG_MOMENT_ID + "=?", new String[]{moment.getId().toString()});
-            for (String tag : moment.getTags()) {
-                ContentValues tagContentValues = new ContentValues();
-                tagContentValues.put(TAG_MOMENT_ID, moment.getId().toString());
-                tagContentValues.put(TAG_NAME, tag);
-                database.insertOrThrow(TAGS_TABLE, null, tagContentValues);
+            if (moment.getTags() != null) {
+                for (String tag : moment.getTags()) {
+                    ContentValues tagContentValues = new ContentValues();
+                    tagContentValues.put(TAG_MOMENT_ID, moment.getId().toString());
+                    tagContentValues.put(TAG_NAME, tag);
+                    database.insertOrThrow(TAGS_TABLE, null, tagContentValues);
+                }
             }
             database.setTransactionSuccessful();
         } finally {
