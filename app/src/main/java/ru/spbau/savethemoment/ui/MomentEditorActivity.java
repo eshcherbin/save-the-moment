@@ -22,6 +22,7 @@ import java.util.Calendar;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
+import ru.spbau.savethemoment.momentmanager.MomentManager;
 
 public class MomentEditorActivity extends AppCompatActivity {
 
@@ -38,11 +39,15 @@ public class MomentEditorActivity extends AppCompatActivity {
     private Context context;
     private boolean startedWithMoment;
 
+    private MomentManager momentManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momenteditor);
         context = this;
+
+        momentManager = new MomentManager(this);
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momenteditor);
         setSupportActionBar(toolbar);
@@ -79,7 +84,7 @@ public class MomentEditorActivity extends AppCompatActivity {
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             } else {
-                //TODO: call MomentManager to save new moment
+                momentManager.insertMoment(moment);
                 Intent intent = new Intent(this, MomentViewActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("MomentId", moment.getId());
