@@ -76,7 +76,7 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
     @Override
     protected void onStart() {
         super.onStart();
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
     @Override
