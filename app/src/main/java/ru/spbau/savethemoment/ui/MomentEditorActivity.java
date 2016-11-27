@@ -82,7 +82,7 @@ public class MomentEditorActivity extends AppCompatActivity {
                 //TODO: call MomentManager to save new moment
                 Intent intent = new Intent(this, MomentViewActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.putExtra("Moment", moment);
+                intent.putExtra("MomentId", moment.getId());
                 startActivity(intent);
                 finish();
             }
