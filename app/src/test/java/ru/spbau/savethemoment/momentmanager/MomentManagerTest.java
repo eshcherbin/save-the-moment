@@ -124,4 +124,17 @@ public class MomentManagerTest {
         assertFalse(cursor.moveToNext());
         assertEquals(ImmutableSet.of(id.toString(), id2.toString()), ids);
     }
+
+    @Test
+    public void updateMomentTest() {
+        moment = new Moment(id, "Title", "Description", Calendar.getInstance(),
+                new Location(""), "Address", ImmutableSet.of("testTag", "anotherTestTag"));
+        momentManager.insertMoment(moment);
+        moment2 = new Moment(id, "Title2", "Description2", Calendar.getInstance(),
+                new Location(""), "Address2", ImmutableSet.of("testTag"));
+        momentManager.updateMoment(moment2);
+        moment = momentManager.getMomentById(id);
+        assertEquals(moment2.getTitle(), moment.getTitle());
+        assertEquals(moment2.getTags(), moment.getTags());
+    }
 }

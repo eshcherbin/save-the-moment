@@ -141,6 +141,32 @@ public class MomentManager {
         }
     }
 
+    public void updateMoment(Moment moment) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        try {
+            database.beginTransaction();
+            ContentValues momentContentValues = new ContentValues();
+            momentContentValues.put(MOMENT_TITLE, moment.getTitle());
+            momentContentValues.put(MOMENT_DESCRIPTION, moment.getDescription());
+            momentContentValues.put(MOMENT_CAPTURING_TIME, moment.getCapturingTime().getTimeInMillis());
+            momentContentValues.put(MOMENT_LOCATION_LONGITUDE, moment.getLocation().getLongitude());
+            momentContentValues.put(MOMENT_LOCATION_LATITUDE, moment.getLocation().getLatitude());
+            momentContentValues.put(MOMENT_ADDRESS, moment.getAddress());
+            database.update(MOMENTS_TABLE,
+                    momentContentValues, MOMENT_ID + "=?", new String[]{moment.getId().toString()});
+            database.delete(TAGS_TABLE, TAG_MOMENT_ID + "=?", new String[]{moment.getId().toString()});
+            for (String tag : moment.getTags()) {
+                ContentValues tagContentValues = new ContentValues();
+                tagContentValues.put(TAG_MOMENT_ID, moment.getId().toString());
+                tagContentValues.put(TAG_NAME, tag);
+                database.insertOrThrow(TAGS_TABLE, null, tagContentValues);
+            }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
+
     protected Set<String> getTagsByMomentId(UUID momentId) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         Cursor tagsCursor = database.query(TAGS_TABLE, new String[]{TAG_NAME}, TAG_MOMENT_ID + "=?",
