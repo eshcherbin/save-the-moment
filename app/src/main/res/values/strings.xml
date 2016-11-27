@@ -22,4 +22,5 @@
     <string name="button_momenteditor_edittime_text">Change time</string>
     <string name="button_momenteditor_editlocation_text">Change location</string>
     <string name="text_list_of_moments_empty_text">No moments yet</string>
+    <string name="menuitem_list_of_moments_new_moment_text">Create new moment</string>
 </resources>
