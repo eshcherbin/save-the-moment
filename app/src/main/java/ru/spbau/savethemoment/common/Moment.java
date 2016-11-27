@@ -89,7 +89,7 @@ public class Moment implements Parcelable {
 
     public static Moment createCurrentMoment() {
         return new Moment(UUID.randomUUID(), "Title", "Description",
-                Calendar.getInstance(), new Location(""), "", Collections.<String>emptySet());
+                Calendar.getInstance(), null, null, null);
     }
 
     @Override
