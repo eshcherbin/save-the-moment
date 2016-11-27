@@ -78,7 +78,7 @@ public class MomentEditorActivity extends AppCompatActivity {
         if (id == R.id.menuitem_momenteditor_save) {
             saveTextChanges();
             if (startedWithMoment) {
-                //TODO: call MomentManager to save changes
+                momentManager.updateMoment(moment);
                 Intent intent = new Intent();
                 intent.putExtra("Moment", moment);
                 setResult(Activity.RESULT_OK, intent);
