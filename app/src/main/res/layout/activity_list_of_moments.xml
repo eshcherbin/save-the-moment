@@ -23,28 +23,13 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <EditText
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:labelFor="@+id/text_list_of_moments_tags"
-                android:layout_weight="1"
-                android:inputType="text|textFilter"
-                android:hint="@string/text_list_of_moments_tags_hint"/>
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/button_list_of_moments_filter"
-                android:layout_weight="1"
-                android:text="@string/button_list_of_moments_filter_text" />
-
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:id="@+id/edittext_list_of_moments_tags"
+            android:inputType="text|textFilter"
+            android:hint="@string/text_list_of_moments_tags_hint"/>
 
         <ListView
             android:layout_width="match_parent"
