@@ -24,10 +24,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ru.spbau.savethemoment.R;
@@ -36,11 +36,14 @@ import ru.spbau.savethemoment.momentmanager.MomentManager;
 public class ListOfMomentsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int LOADER_ID = 0;
+    private static final String PATTERN_ONE_TAG = "[а-яА-Яa-zA-Z0-9#\\-]+";
+    private static final String PATTERN_TAG_SEPARATOR = ",";
 
     private Toolbar toolbar;
     private ListView listViewMoments;
     private ListOfMomentsAdapter listOfMomentsAdapter;
-    private Pattern tagsPattern;
+    private Pattern oneTagPattern;
+    private Pattern tagsSeparatorPattern;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +70,8 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             }
         });
 
-        tagsPattern = Pattern.compile(getString(R.string.pattern_many_tags));
+        oneTagPattern = Pattern.compile(PATTERN_ONE_TAG);
+        tagsSeparatorPattern = Pattern.compile(PATTERN_TAG_SEPARATOR);
 
         final EditText editTextTagsToFilter = (EditText) findViewById(R.id.edittext_list_of_moments_tags);
         editTextTagsToFilter.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -94,16 +98,15 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
                     }
                     return;
                 }
-                Matcher matcher = tagsPattern.matcher(s);
-                if (matcher.matches()) {
-                    HashSet<String> tags = new HashSet<>();
-                    for (int i = 0; i < matcher.groupCount(); i++) {
-                        tags.add(matcher.group(i));
+                String[] tags = tagsSeparatorPattern.split(s, -1);
+                for (String tag : tags) {
+                    if (!oneTagPattern.matcher(tag).matches()) {
+                        return;
                     }
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("Tags", tags);
-                    getLoaderManager().restartLoader(LOADER_ID, bundle, ListOfMomentsActivity.this);
                 }
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(tags)));
+                getLoaderManager().restartLoader(LOADER_ID, bundle, ListOfMomentsActivity.this);
             }
 
             @Override
