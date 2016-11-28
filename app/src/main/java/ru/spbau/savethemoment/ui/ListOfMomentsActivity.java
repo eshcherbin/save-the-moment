@@ -9,18 +9,26 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
@@ -28,14 +36,12 @@ import ru.spbau.savethemoment.momentmanager.MomentManager;
 public class ListOfMomentsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int LOADER_ID = 0;
+    private static final String PATTERN_TAG_SEPARATOR = ",";
 
     private Toolbar toolbar;
     private ListView listViewMoments;
     private ListOfMomentsAdapter listOfMomentsAdapter;
-
-    public void onFilterButtonClicked(View view) {
-        //TODO: implement filtering
-    }
+    private Pattern tagsSeparatorPattern;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +65,48 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
                 Intent intent = new Intent(ListOfMomentsActivity.this, MomentViewActivity.class);
                 intent.putExtra("MomentId", momentId);
                 startActivity(intent);
+            }
+        });
+
+        tagsSeparatorPattern = Pattern.compile(PATTERN_TAG_SEPARATOR);
+
+        final EditText editTextTagsToFilter = (EditText) findViewById(R.id.edittext_list_of_moments_tags);
+        editTextTagsToFilter.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (v.getId() == R.id.edittext_list_of_moments_tags && !hasFocus) {
+                    InputMethodManager inputMethodManager =
+                            (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            }
+        });
+        editTextTagsToFilter.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0) {
+                    if (before > 0) {
+                        getLoaderManager().restartLoader(LOADER_ID, null, ListOfMomentsActivity.this);
+                    }
+                    return;
+                }
+                String[] tags = tagsSeparatorPattern.split(s);
+                for (int i = 0; i < tags.length; i++) {
+                    tags[i] = tags[i].trim();
+                }
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(tags)));
+                getLoaderManager().restartLoader(LOADER_ID, bundle, ListOfMomentsActivity.this);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }
@@ -88,7 +136,11 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new MomentsLoader(this);
+        if (args != null && args.keySet().contains("Tags")) {
+            return new MomentsLoader(this, (Set<String>) args.getSerializable("Tags"));
+        } else {
+            return new MomentsLoader(this, null);
+        }
     }
 
     @Override
@@ -148,10 +200,12 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
     private static class MomentsLoader extends AsyncTaskLoader<Cursor> {
         private final MomentManager momentManager;
         private Cursor data;
+        private Set<String> tags;
 
-        public MomentsLoader(Context context) {
+        public MomentsLoader(Context context, Set<String> tags) {
             super(context);
             momentManager = new MomentManager(context);
+            this.tags = tags;
         }
 
         @Override
@@ -174,7 +228,11 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
 
         @Override
         public Cursor loadInBackground() {
-            data = momentManager.getMoments();
+            if (tags == null) {
+                data = momentManager.getMoments();
+            } else {
+                data = momentManager.getMomentsByTags(tags);
+            }
             return data;
         }
     }
