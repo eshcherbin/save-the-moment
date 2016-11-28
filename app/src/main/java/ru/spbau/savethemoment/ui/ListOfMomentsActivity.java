@@ -96,6 +96,9 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
                     return;
                 }
                 String[] tags = tagsSeparatorPattern.split(s);
+                for (int i = 0; i < tags.length; i++) {
+                    tags[i] = tags[i].trim();
+                }
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(tags)));
                 getLoaderManager().restartLoader(LOADER_ID, bundle, ListOfMomentsActivity.this);
