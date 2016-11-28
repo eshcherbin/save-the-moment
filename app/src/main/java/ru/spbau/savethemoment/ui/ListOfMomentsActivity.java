@@ -36,13 +36,11 @@ import ru.spbau.savethemoment.momentmanager.MomentManager;
 public class ListOfMomentsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int LOADER_ID = 0;
-    private static final String PATTERN_ONE_TAG = "[а-яА-Яa-zA-Z0-9#\\-]+";
     private static final String PATTERN_TAG_SEPARATOR = ",";
 
     private Toolbar toolbar;
     private ListView listViewMoments;
     private ListOfMomentsAdapter listOfMomentsAdapter;
-    private Pattern oneTagPattern;
     private Pattern tagsSeparatorPattern;
 
     @Override
@@ -70,7 +68,6 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             }
         });
 
-        oneTagPattern = Pattern.compile(PATTERN_ONE_TAG);
         tagsSeparatorPattern = Pattern.compile(PATTERN_TAG_SEPARATOR);
 
         final EditText editTextTagsToFilter = (EditText) findViewById(R.id.edittext_list_of_moments_tags);
@@ -98,12 +95,7 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
                     }
                     return;
                 }
-                String[] tags = tagsSeparatorPattern.split(s, -1);
-                for (String tag : tags) {
-                    if (!oneTagPattern.matcher(tag).matches()) {
-                        return;
-                    }
-                }
+                String[] tags = tagsSeparatorPattern.split(s);
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(tags)));
                 getLoaderManager().restartLoader(LOADER_ID, bundle, ListOfMomentsActivity.this);
