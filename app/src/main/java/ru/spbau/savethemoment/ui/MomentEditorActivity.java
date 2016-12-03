@@ -1,20 +1,12 @@
 package ru.spbau.savethemoment.ui;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -25,11 +17,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
@@ -39,9 +27,8 @@ import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
 
-public class MomentEditorActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-    private static final int FINE_LOCATION_REQUEST_CODE = 0;
-    private static final int CHOOSE_LOCATION_REQUEST_CODE = 1;
+public class MomentEditorActivity extends AppCompatActivity {
+    private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
 
     private Toolbar toolbar;
     private Moment moment;
@@ -58,8 +45,6 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
 
     private MomentManager momentManager;
 
-    private GoogleApiClient googleApiClient;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,14 +52,6 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         context = this;
 
         momentManager = new MomentManager(this);
-
-        if (googleApiClient == null) {
-            googleApiClient = new GoogleApiClient.Builder(context)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momenteditor);
         setSupportActionBar(toolbar);
@@ -91,18 +68,6 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         initDateAndTime();
         initLocation();
         //TODO: edit media content
-    }
-
-    @Override
-    protected void onResume() {
-        super.onStart();
-        googleApiClient.connect();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        googleApiClient.disconnect();
     }
 
     @Override
@@ -133,34 +98,6 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == FINE_LOCATION_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // requestPermission is called only in setCurrentLocation
-                // should call setCurrentLocation again after permission granted
-                setCurrentLocation();
-            }
-        }
     }
 
     @Override
@@ -244,54 +181,16 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         editLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String currentLocationMessage = getString(R.string.moment_editor_current_location);
-                final String chooseOnMapMessage = getString(R.string.moment_editor_choose_on_map);
-                final String[] chooseLocationMethods = {currentLocationMessage, chooseOnMapMessage};
-                AlertDialog chooseLocationMethodDialog =
-                        new AlertDialog.Builder(context)
-                                .setTitle(R.string.moment_editor_location_dialog_title)
-                                .setItems(chooseLocationMethods, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if (chooseLocationMethods[which].equals(currentLocationMessage)) {
-                                            setCurrentLocation();
-                                        } else if (chooseLocationMethods[which].equals(chooseOnMapMessage)) {
-                                            Intent intent = new Intent(context, ChooseLocationActivity.class);
-                                            Location currentMomentLocation = moment.getLocation();
-                                            if (currentMomentLocation != null) {
-                                                intent.putExtra(ChooseLocationActivity.POSITION_LAT_LNG_NAME,
-                                                        new LatLng(currentMomentLocation.getLatitude(),
-                                                                   currentMomentLocation.getLongitude()));
-                                            }
-                                            startActivityForResult(intent, CHOOSE_LOCATION_REQUEST_CODE);
-                                        }
-                                    }
-                                }).create();
-                chooseLocationMethodDialog.show();
+                Intent intent = new Intent(context, ChooseLocationActivity.class);
+                Location currentMomentLocation = moment.getLocation();
+                if (currentMomentLocation != null) {
+                    intent.putExtra(ChooseLocationActivity.POSITION_LAT_LNG_NAME,
+                            new LatLng(currentMomentLocation.getLatitude(),
+                                    currentMomentLocation.getLongitude()));
+                }
+                startActivityForResult(intent, CHOOSE_LOCATION_REQUEST_CODE);
             }
         });
-    }
-
-    private void setCurrentLocation() {
-        if (!googleApiClient.isConnected()) {
-            Toast.makeText(context, R.string.momenteditor_current_location_failed, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST_CODE);
-            }
-            return;
-        }
-        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-        if (currentLocation != null) {
-            moment.setLocation(currentLocation);
-        } else {
-            Toast.makeText(context, R.string.momenteditor_current_location_failed, Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void saveTextChanges() {
