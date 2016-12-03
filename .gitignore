@@ -38,4 +38,4 @@ captures/
 
 # Keystore files
 *.jks
-/app/src/debug/res/values/google_api_keys.xml
+*/google_api_keys.xml

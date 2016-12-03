@@ -8,4 +8,9 @@
         android:orderInCategory="100"
         android:title="@string/menuitem_list_of_moments_new_moment_text"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/menuitem_list_of_moments_show_on_map"
+        android:orderInCategory="100"
+        android:title="@string/menuitem_list_of_moments_show_on_map_text"
+        app:showAsAction="never" />
 </menu>

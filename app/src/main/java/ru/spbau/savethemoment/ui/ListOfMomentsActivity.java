@@ -1,7 +1,6 @@
 package ru.spbau.savethemoment.ui;
 
 import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
@@ -32,6 +31,7 @@ import java.util.regex.Pattern;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
+import ru.spbau.savethemoment.momentmanager.MomentsLoader;
 
 public class ListOfMomentsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -124,6 +124,10 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             Intent intent = new Intent(this, MomentEditorActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.menuitem_list_of_moments_show_on_map) {
+            Intent intent = new Intent(this, MapOfMomentsActivity.class);
+            startActivity(intent);
+            return true;
         }
         return false;
     }
@@ -197,44 +201,5 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
         }
     }
 
-    private static class MomentsLoader extends AsyncTaskLoader<Cursor> {
-        private final MomentManager momentManager;
-        private Cursor data;
-        private Set<String> tags;
-
-        public MomentsLoader(Context context, Set<String> tags) {
-            super(context);
-            momentManager = new MomentManager(context);
-            this.tags = tags;
-        }
-
-        @Override
-        protected void onReset() {
-            super.onReset();
-            if (data != null) {
-                data.close();
-            }
-            data = null;
-        }
-
-        @Override
-        protected void onStartLoading() {
-            if (takeContentChanged() || data == null) {
-                forceLoad();
-            } else {
-                deliverResult(data);
-            }
-        }
-
-        @Override
-        public Cursor loadInBackground() {
-            if (tags == null) {
-                data = momentManager.getMoments();
-            } else {
-                data = momentManager.getMomentsByTags(tags);
-            }
-            return data;
-        }
-    }
 }
 

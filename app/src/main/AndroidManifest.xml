@@ -21,14 +21,18 @@
         <activity
             android:name=".ui.MomentEditorActivity"
             android:theme="@style/AppTheme"/>
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key"/>
-
         <activity
             android:name=".ui.ChooseLocationActivity"
             android:label="@string/title_activity_choose_location">
         </activity>
+        <activity
+            android:name=".ui.MapOfMomentsActivity"
+            android:label="@string/title_activity_map_of_moments">
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key"/>
     </application>
 
 </manifest>
