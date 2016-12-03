@@ -63,6 +63,10 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_momentview, menu);
+        if (moment.getLocation() == null) {
+            MenuItem showOnMapItem = menu.findItem(R.id.menuitem_momentview_onmap);
+            showOnMapItem.setVisible(false);
+        }
         return true;
     }
 

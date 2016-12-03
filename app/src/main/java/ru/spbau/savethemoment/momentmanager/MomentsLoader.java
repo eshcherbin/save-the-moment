@@ -10,11 +10,13 @@ public class MomentsLoader extends AsyncTaskLoader<Cursor> {
     private final MomentManager momentManager;
     private Cursor data;
     private Set<String> tags;
+    private boolean locationRequired;
 
-    public MomentsLoader(Context context, Set<String> tags) {
+    public MomentsLoader(Context context, Set<String> tags, boolean locationRequired) {
         super(context);
         momentManager = new MomentManager(context);
         this.tags = tags;
+        this.locationRequired = locationRequired;
     }
 
     @Override
@@ -38,9 +40,9 @@ public class MomentsLoader extends AsyncTaskLoader<Cursor> {
     @Override
     public Cursor loadInBackground() {
         if (tags == null) {
-            data = momentManager.getMoments();
+            data = momentManager.getMoments(locationRequired);
         } else {
-            data = momentManager.getMomentsByTags(tags);
+            data = momentManager.getMomentsByTags(tags, locationRequired);
         }
         return data;
     }

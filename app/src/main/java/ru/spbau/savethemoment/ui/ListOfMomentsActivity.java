@@ -141,9 +141,9 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (args != null && args.keySet().contains("Tags")) {
-            return new MomentsLoader(this, (Set<String>) args.getSerializable("Tags"));
+            return new MomentsLoader(this, (Set<String>) args.getSerializable("Tags"), false);
         } else {
-            return new MomentsLoader(this, null);
+            return new MomentsLoader(this, null, false);
         }
     }
 

@@ -58,9 +58,13 @@ public class MomentManager {
         dbHelper = new DBHelper(context);
     }
 
-    public Cursor getMoments() {
+    public Cursor getMoments(boolean locationRequired) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
-        return database.query(MOMENTS_TABLE, MOMENT_COLUMNS, null, null, null, null, null);
+        return database.query(MOMENTS_TABLE, MOMENT_COLUMNS,
+                locationRequired
+                        ? MOMENT_LOCATION_LONGITUDE + " is not null and " + MOMENT_LOCATION_LATITUDE + " is not null"
+                        : null,
+                null, null, null, null);
     }
 
     public Moment getMomentById(UUID momentId) {
@@ -102,12 +106,15 @@ public class MomentManager {
         }
     }
 
-    public Cursor getMomentsByTags(Set<String> tags) {
+    public Cursor getMomentsByTags(Set<String> tags, boolean locationRequired) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         StringBuilder selectionBuilder = null;
         String[] selectionArgs = tags.toArray(new String[]{});
         if (selectionArgs.length > 0) {
-            selectionBuilder = new StringBuilder();
+            selectionBuilder = new StringBuilder(
+                    locationRequired
+                        ? MOMENT_LOCATION_LONGITUDE + " is not null and " + MOMENT_LOCATION_LATITUDE + " is not null"
+                        : "");
             for (int i = 0; i < selectionArgs.length - 1; i++) {
                 selectionBuilder.append(TAGS_TABLE + "." + TAG_NAME + " = ? OR ");
             }
