@@ -106,10 +106,13 @@ public class MomentEditorActivity extends AppCompatActivity {
         if (requestCode == CHOOSE_LOCATION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 LatLng latLng = data.getParcelableExtra(ChooseLocationActivity.POSITION_LAT_LNG_NAME);
-                Location location = new Location("");
-                location.setLatitude(latLng.latitude);
-                location.setLongitude(latLng.longitude);
-                moment.setLocation(location);
+                Location momentLocation = new Location("");
+                momentLocation.setLatitude(latLng.latitude);
+                momentLocation.setLongitude(latLng.longitude);
+                moment.setLocation(momentLocation);
+                String address = data.getStringExtra(ChooseLocationActivity.ADDRESS);
+                location.setText(address);
+                moment.setAddress(address);
             }
         }
     }

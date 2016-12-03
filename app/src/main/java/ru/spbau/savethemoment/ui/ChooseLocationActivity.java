@@ -3,13 +3,17 @@ package ru.spbau.savethemoment.ui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -22,7 +26,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.spbau.savethemoment.R;
+import ru.spbau.savethemoment.common.FetchAddressIntentService;
 
 public class ChooseLocationActivity extends FragmentActivity implements
         OnMapReadyCallback,
@@ -31,11 +39,13 @@ public class ChooseLocationActivity extends FragmentActivity implements
     public static final String POSITION_LAT_LNG_NAME = "PositionLatLng";
     private static final int FINE_LOCATION_REQUEST_CODE = 0;
     private static final int ZOOM = 10;
+    public static final String ADDRESS = "Address";
 
     private LatLng initialLatLng;
     private Marker locationMarker;
     private Intent result;
     private GoogleMap googleMap;
+    private AddressReceiver addressReceiver;
 
     private GoogleApiClient googleApiClient;
 
@@ -58,6 +68,7 @@ public class ChooseLocationActivity extends FragmentActivity implements
                 .findFragmentById(R.id.choose_location_fragment);
         mapFragment.getMapAsync(this);
         result = new Intent();
+        addressReceiver = new AddressReceiver(null);
     }
 
     @Override
@@ -119,8 +130,16 @@ public class ChooseLocationActivity extends FragmentActivity implements
                 locationMarker.setVisible(true);
                 result.putExtra(POSITION_LAT_LNG_NAME, locationMarker.getPosition());
                 setResult(RESULT_OK, result);
+                requestAddress(locationMarker.getPosition());
             }
         });
+    }
+
+    private void requestAddress(LatLng position) {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(FetchAddressIntentService.RECEIVER, addressReceiver);
+        intent.putExtra(FetchAddressIntentService.LAT_LNG, position);
+        startService(intent);
     }
 
     private void getCurrentLocation() {
@@ -140,5 +159,26 @@ public class ChooseLocationActivity extends FragmentActivity implements
         locationMarker.setPosition(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()));
         locationMarker.setVisible(true);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationMarker.getPosition(), ZOOM));
+
+        requestAddress(locationMarker.getPosition());
+    }
+
+    private class AddressReceiver extends ResultReceiver {
+        public AddressReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            if (resultCode == FetchAddressIntentService.RESULT_OK) {
+                Address address = resultData.getParcelable(FetchAddressIntentService.RESULT_ADDRESS);
+                List<String> addressLines = new ArrayList<>();
+                for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
+                    addressLines.add(address.getAddressLine(i));
+                }
+                String addressString = TextUtils.join("\n", addressLines);
+                result.putExtra(ADDRESS, addressString);
+            }
+        }
     }
 }
