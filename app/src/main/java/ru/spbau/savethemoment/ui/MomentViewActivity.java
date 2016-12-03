@@ -6,12 +6,14 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.UUID;
@@ -21,6 +23,8 @@ import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
 
 public class MomentViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Moment> {
+
+    public static final String MOMENT_ID = "MomentId";
 
     private static final int LOADER_ID = 0;
     private static final int EDIT_MOMENT = 1;
@@ -35,7 +39,7 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
 
-        momentId = (UUID) getIntent().getSerializableExtra("MomentId");
+        momentId = (UUID) getIntent().getSerializableExtra(MOMENT_ID);
         getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
@@ -59,6 +63,10 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_momentview, menu);
+        if (moment.getLocation() == null) {
+            MenuItem showOnMapItem = menu.findItem(R.id.menuitem_momentview_onmap);
+            showOnMapItem.setVisible(false);
+        }
         return true;
     }
 
@@ -66,7 +74,10 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menuitem_momentview_onmap) {
-            //TODO: show moment on map
+            Intent intent = new Intent(this, MapOfMomentsActivity.class);
+            intent.putExtra(MapOfMomentsActivity.MOMENT, moment);
+            intent.putExtra(MapOfMomentsActivity.IS_SINGLE_MOMENT, true);
+            startActivity(intent);
             return true;
         }
         if (id == R.id.menuitem_momentview_edit) {
