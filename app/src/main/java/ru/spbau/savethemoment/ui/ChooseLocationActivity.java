@@ -122,17 +122,22 @@ public class ChooseLocationActivity extends FragmentActivity implements
         } else {
             locationMarker = googleMap.addMarker(new MarkerOptions().position(initialLatLng).visible(true));
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationMarker.getPosition(), ZOOM));
+            setResultPosition(locationMarker.getPosition());
         }
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 locationMarker.setPosition(latLng);
                 locationMarker.setVisible(true);
-                result.putExtra(POSITION_LAT_LNG_NAME, locationMarker.getPosition());
-                setResult(RESULT_OK, result);
-                requestAddress(locationMarker.getPosition());
+                setResultPosition(locationMarker.getPosition());
             }
         });
+    }
+
+    private void setResultPosition(LatLng latLng) {
+        result.putExtra(POSITION_LAT_LNG_NAME, latLng);
+        setResult(RESULT_OK, result);
+        requestAddress(locationMarker.getPosition());
     }
 
     private void requestAddress(LatLng position) {
@@ -160,7 +165,7 @@ public class ChooseLocationActivity extends FragmentActivity implements
         locationMarker.setVisible(true);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(locationMarker.getPosition(), ZOOM));
 
-        requestAddress(locationMarker.getPosition());
+        setResultPosition(locationMarker.getPosition());
     }
 
     private class AddressReceiver extends ResultReceiver {
