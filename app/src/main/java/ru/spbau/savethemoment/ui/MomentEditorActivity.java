@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -40,6 +41,7 @@ import ru.spbau.savethemoment.momentmanager.MomentManager;
 
 public class MomentEditorActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final int FINE_LOCATION_REQUEST_CODE = 0;
+    private static final int CHOOSE_LOCATION_REQUEST_CODE = 1;
 
     private Toolbar toolbar;
     private Moment moment;
@@ -149,13 +151,28 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == FINE_LOCATION_REQUEST_CODE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // requestPermission is called only in setCurrentLocation
                 // should call setCurrentLocation again after permission granted
                 setCurrentLocation();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CHOOSE_LOCATION_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                LatLng latLng = data.getParcelableExtra(ChooseLocationActivity.POSITION_LAT_LNG_NAME);
+                Location location = new Location("");
+                location.setLatitude(latLng.latitude);
+                location.setLongitude(latLng.longitude);
+                moment.setLocation(location);
             }
         }
     }
@@ -239,7 +256,14 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                                         if (chooseLocationMethods[which].equals(currentLocationMessage)) {
                                             setCurrentLocation();
                                         } else if (chooseLocationMethods[which].equals(chooseOnMapMessage)) {
-                                            //TODO: choose on map
+                                            Intent intent = new Intent(context, ChooseLocationActivity.class);
+                                            Location currentMomentLocation = moment.getLocation();
+                                            if (currentMomentLocation != null) {
+                                                intent.putExtra(ChooseLocationActivity.POSITION_LAT_LNG_NAME,
+                                                        new LatLng(currentMomentLocation.getLatitude(),
+                                                                   currentMomentLocation.getLongitude()));
+                                            }
+                                            startActivityForResult(intent, CHOOSE_LOCATION_REQUEST_CODE);
                                         }
                                     }
                                 }).create();
