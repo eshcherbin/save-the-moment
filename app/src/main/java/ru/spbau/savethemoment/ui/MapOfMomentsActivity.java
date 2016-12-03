@@ -95,11 +95,14 @@ public class MapOfMomentsActivity extends FragmentActivity implements
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         googleMap.clear();
         while (data.moveToNext()) {
-            double longitude = data.getDouble(data.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE));
-            double latitude = data.getDouble(data.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE));
-            UUID momentId = UUID.fromString(data.getString(data.getColumnIndexOrThrow(MomentManager.MOMENT_ID)));
-            Marker marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
-            marker.setTag(momentId);
+            if (!data.isNull(data.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE) )
+                    && !data.isNull(data.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE))) {
+                double longitude = data.getDouble(data.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE));
+                double latitude = data.getDouble(data.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE));
+                UUID momentId = UUID.fromString(data.getString(data.getColumnIndexOrThrow(MomentManager.MOMENT_ID)));
+                Marker marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
+                marker.setTag(momentId);
+            }
         }
     }
 
