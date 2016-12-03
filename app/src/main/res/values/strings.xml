@@ -23,4 +23,9 @@
     <string name="button_momenteditor_editlocation_text">Change location</string>
     <string name="text_list_of_moments_empty_text">No moments yet</string>
     <string name="menuitem_list_of_moments_new_moment_text">Create new moment</string>
+    <string name="moment_editor_location_dialog_title">Change location</string>
+    <string name="moment_editor_current_location">Current location</string>
+    <string name="moment_editor_choose_on_map">Choose on map</string>
+    <string name="momenteditor_current_location_failed">Failed to get location</string>
+    <string name="title_activity_choose_location">ChooseLocationActivity</string>
 </resources>

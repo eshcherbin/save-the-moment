@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,6 +18,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -25,6 +28,7 @@ import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
 
 public class MomentEditorActivity extends AppCompatActivity {
+    private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
 
     private Toolbar toolbar;
     private Moment moment;
@@ -96,6 +100,20 @@ public class MomentEditorActivity extends AppCompatActivity {
         return false;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CHOOSE_LOCATION_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                LatLng latLng = data.getParcelableExtra(ChooseLocationActivity.POSITION_LAT_LNG_NAME);
+                Location location = new Location("");
+                location.setLatitude(latLng.latitude);
+                location.setLongitude(latLng.longitude);
+                moment.setLocation(location);
+            }
+        }
+    }
+
     private void initTitle() {
         title = (EditText) findViewById(R.id.edittext_momenteditor_title);
         title.setText(moment.getTitle());
@@ -163,7 +181,14 @@ public class MomentEditorActivity extends AppCompatActivity {
         editLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: handle location changes
+                Intent intent = new Intent(context, ChooseLocationActivity.class);
+                Location currentMomentLocation = moment.getLocation();
+                if (currentMomentLocation != null) {
+                    intent.putExtra(ChooseLocationActivity.POSITION_LAT_LNG_NAME,
+                            new LatLng(currentMomentLocation.getLatitude(),
+                                    currentMomentLocation.getLongitude()));
+                }
+                startActivityForResult(intent, CHOOSE_LOCATION_REQUEST_CODE);
             }
         });
     }
