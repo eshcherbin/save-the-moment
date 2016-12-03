@@ -74,15 +74,10 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menuitem_momentview_onmap) {
-            Location location = moment.getLocation();
-            if (location != null) {
-                Intent intent = new Intent(this, MapOfMomentsActivity.class);
-                intent.putExtra(MapOfMomentsActivity.MOMENT, moment);
-                intent.putExtra(MapOfMomentsActivity.IS_SINGLE_MOMENT, true);
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, R.string.momentview_no_location_specified, Toast.LENGTH_SHORT).show();
-            }
+            Intent intent = new Intent(this, MapOfMomentsActivity.class);
+            intent.putExtra(MapOfMomentsActivity.MOMENT, moment);
+            intent.putExtra(MapOfMomentsActivity.IS_SINGLE_MOMENT, true);
+            startActivity(intent);
             return true;
         }
         if (id == R.id.menuitem_momentview_edit) {
