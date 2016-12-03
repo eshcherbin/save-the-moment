@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -163,7 +166,23 @@ public class MomentEditorActivity extends AppCompatActivity {
         editLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: handle location changes
+                final String currentLocationMessage = getString(R.string.moment_editor_current_location);
+                final String chooseOnMapMessage = getString(R.string.moment_editor_choose_on_map);
+                final String[] chooseLocationMethods = {currentLocationMessage, chooseOnMapMessage};
+                AlertDialog chooseLocationMethodDialog =
+                        new AlertDialog.Builder(context)
+                                       .setTitle(R.string.moment_editor_location_dialog_title)
+                                       .setItems(chooseLocationMethods, new DialogInterface.OnClickListener() {
+                                           @Override
+                                           public void onClick(DialogInterface dialog, int which) {
+                                               if (chooseLocationMethods[which].equals(currentLocationMessage)) {
+                                                   //TODO: get current location
+                                               } else if (chooseLocationMethods[which].equals(chooseOnMapMessage)) {
+                                                   //TODO: choose on map
+                                               }
+                                           }
+                                       }).create();
+                chooseLocationMethodDialog.show();
             }
         });
     }
