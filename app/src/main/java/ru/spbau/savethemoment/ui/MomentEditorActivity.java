@@ -100,8 +100,8 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
+        super.onPause();
         googleApiClient.disconnect();
     }
 
@@ -274,6 +274,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
 
     private void setCurrentLocation() {
         if (!googleApiClient.isConnected()) {
+            Toast.makeText(context, R.string.momenteditor_current_location_failed, Toast.LENGTH_SHORT).show();
             return;
         }
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
