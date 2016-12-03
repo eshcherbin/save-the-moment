@@ -26,4 +26,5 @@
     <string name="moment_editor_location_dialog_title">Change location</string>
     <string name="moment_editor_current_location">Current location</string>
     <string name="moment_editor_choose_on_map">Choose on map</string>
+    <string name="momenteditor_current_location_failed">Failed to get location</string>
 </resources>

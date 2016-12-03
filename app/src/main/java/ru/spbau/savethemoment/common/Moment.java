@@ -87,6 +87,10 @@ public class Moment implements Parcelable {
         this.capturingTime.set(Calendar.MINUTE, minute);
     }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public static Moment createCurrentMoment() {
         return new Moment(UUID.randomUUID(), "Title", "Description",
                 Calendar.getInstance(), null, null, null);
