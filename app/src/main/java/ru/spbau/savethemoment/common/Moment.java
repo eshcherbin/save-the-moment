@@ -91,6 +91,10 @@ public class Moment implements Parcelable {
         this.location = location;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     public static Moment createCurrentMoment() {
         return new Moment(UUID.randomUUID(), "Title", "Description",
                 Calendar.getInstance(), null, null, null);
