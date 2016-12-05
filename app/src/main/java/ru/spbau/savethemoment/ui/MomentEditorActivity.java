@@ -19,6 +19,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -82,6 +83,10 @@ public class MomentEditorActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menuitem_momenteditor_save) {
+            if (checkIfTitleEmpty()) {
+                Toast.makeText(context, "Title is required", Toast.LENGTH_SHORT).show();
+                return true;
+            }
             saveTextChanges();
             if (startedWithMoment) {
                 momentManager.updateMoment(moment);
@@ -119,9 +124,22 @@ public class MomentEditorActivity extends AppCompatActivity {
         }
     }
 
+    boolean checkIfTitleEmpty() {
+        return title.getText().toString().length() <= 0;
+    }
+
+    void setErrorOnTitle() {
+        if (checkIfTitleEmpty()) {
+            title.setError("Title is required");
+        } else {
+            title.setError(null);
+        }
+    }
+
     private void initTitle() {
         title = (EditText) findViewById(R.id.edittext_momenteditor_title);
         title.setText(moment.getTitle());
+        setErrorOnTitle();
         title.addTextChangedListener(new TextWatcher()  {
 
             @Override
@@ -134,11 +152,7 @@ public class MomentEditorActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s)  {
-                if (title.getText().toString().length() <= 0) {
-                    title.setError("Title is required");
-                } else {
-                    title.setError(null);
-                }
+                setErrorOnTitle();
             }
         });
     }

@@ -6,14 +6,12 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.UUID;
@@ -31,6 +29,7 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     private Toolbar toolbar;
     private UUID momentId;
     private Moment moment;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,11 +61,9 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_momentview, menu);
-        if (moment.getLocation() == null) {
-            MenuItem showOnMapItem = menu.findItem(R.id.menuitem_momentview_onmap);
-            showOnMapItem.setVisible(false);
-        }
+        showLocationButton();
         return true;
     }
 
@@ -96,9 +93,15 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
         if (requestCode == EDIT_MOMENT && resultCode == Activity.RESULT_OK) {
             moment = data.getParcelableExtra("Moment");
             display();
+            showLocationButton();
         } else {
             assert false : "MomentEditor didn't return a moment";
         }
+    }
+
+    private void showLocationButton() {
+        MenuItem showOnMapItem = menu.findItem(R.id.menuitem_momentview_onmap);
+        showOnMapItem.setVisible(moment.getLocation() != null);
     }
 
     private void display() {
