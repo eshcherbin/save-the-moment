@@ -30,11 +30,14 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     private UUID momentId;
     private Moment moment;
     private Menu menu;
+    private MomentManager momentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momentview);
+
+        momentManager = new MomentManager(this);
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
 
@@ -83,6 +86,10 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
             intent.putExtra("Moment", moment);
             startActivityForResult(intent, EDIT_MOMENT);
             return true;
+        }
+        if (id == R.id.menuitem_momentview_delete) {
+            momentManager.deleteMomentById(moment.getId());
+            finish();
         }
 
         return false;

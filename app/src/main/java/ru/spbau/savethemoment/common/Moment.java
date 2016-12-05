@@ -95,8 +95,7 @@ public class Moment implements Parcelable {
     }
 
     public static Moment createCurrentMoment() {
-        return new Moment(UUID.randomUUID(), "", "",
-                Calendar.getInstance(), null, null, null);
+        return new Moment(UUID.randomUUID(), "", "", Calendar.getInstance(), null, null, null);
     }
 
     @Override
