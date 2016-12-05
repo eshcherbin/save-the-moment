@@ -9,6 +9,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -120,6 +122,25 @@ public class MomentEditorActivity extends AppCompatActivity {
     private void initTitle() {
         title = (EditText) findViewById(R.id.edittext_momenteditor_title);
         title.setText(moment.getTitle());
+        title.addTextChangedListener(new TextWatcher()  {
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)  {
+                if (title.getText().toString().length() <= 0) {
+                    title.setError("Title is required");
+                } else {
+                    title.setError(null);
+                }
+            }
+        });
     }
 
     private void initDescription() {
