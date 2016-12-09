@@ -30,8 +30,8 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import ru.spbau.savethemoment.R;
-import ru.spbau.savethemoment.momentmanager.MomentManager;
-import ru.spbau.savethemoment.momentmanager.MomentsLoader;
+import ru.spbau.savethemoment.datamanagers.MomentManager;
+import ru.spbau.savethemoment.datamanagers.MomentsLoader;
 
 public class ListOfMomentsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 

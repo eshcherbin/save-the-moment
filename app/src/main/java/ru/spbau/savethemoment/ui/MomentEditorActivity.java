@@ -25,7 +25,7 @@ import java.util.Calendar;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
-import ru.spbau.savethemoment.momentmanager.MomentManager;
+import ru.spbau.savethemoment.datamanagers.MomentManager;
 
 public class MomentEditorActivity extends AppCompatActivity {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;

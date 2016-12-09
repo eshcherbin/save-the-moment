@@ -1,4 +1,4 @@
-package ru.spbau.savethemoment.momentmanager;
+package ru.spbau.savethemoment.datamanagers;
 
 import android.content.Context;
 import android.database.Cursor;

@@ -6,21 +6,19 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
-import ru.spbau.savethemoment.momentmanager.MomentManager;
+import ru.spbau.savethemoment.datamanagers.MomentManager;
 
 public class MomentViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Moment> {
 

@@ -16,13 +16,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.List;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
-import ru.spbau.savethemoment.momentmanager.MomentManager;
-import ru.spbau.savethemoment.momentmanager.MomentsLoader;
+import ru.spbau.savethemoment.datamanagers.MomentManager;
+import ru.spbau.savethemoment.datamanagers.MomentsLoader;
 
 public class MapOfMomentsActivity extends FragmentActivity implements
         OnMapReadyCallback,
