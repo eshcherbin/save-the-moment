@@ -6,13 +6,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
-import android.widget.SimpleCursorAdapter;
 
+import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveId;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -220,6 +222,18 @@ public class MomentManager {
         contentValues.put(MEDIA_MOMENT_ID, momentId.toString());
         contentValues.put(MEDIA_DRIVE_ID, driveId.encodeToString());
         database.insert(MEDIA_TABLE, null, contentValues);
+    }
+
+    public List<DriveId> getMediaContentListByMomentId(UUID momentId) {
+        SQLiteDatabase database = dbHelper.getReadableDatabase();
+        Cursor driveIdsCursor = database.query(MEDIA_TABLE, new String[]{MEDIA_DRIVE_ID}, MEDIA_MOMENT_ID + "=?",
+                new String[]{momentId.toString()}, null, null, null);
+        List<DriveId> driveIdList = new ArrayList<>();
+        while (driveIdsCursor.moveToNext()) {
+            driveIdList.add(DriveId.decodeFromString(
+                    driveIdsCursor.getString(driveIdsCursor.getColumnIndexOrThrow(MomentManager.MEDIA_DRIVE_ID))));
+        }
+        return driveIdList;
     }
 
     protected Set<String> getTagsByMomentId(UUID momentId) {

@@ -42,4 +42,20 @@ public class DriveManager {
         momentFolder.createFile(googleApiClient, new MetadataChangeSet.Builder().setTitle(fileTitle).build(), contents)
                     .setResultCallback(resultCallback);
     }
+
+    public static void deleteMomentFolder(GoogleApiClient googleApiClient, UUID momentId) {
+        DriveFolder appFolder = Drive.DriveApi.getAppFolder(googleApiClient);
+        MetadataBuffer buffer = appFolder.queryChildren(googleApiClient,
+                new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE,
+                        momentId.toString()))
+                        .build())
+                .await().getMetadataBuffer();
+        if (buffer.getCount() > 0) {
+            buffer.get(0).getDriveId().asDriveFile().delete(googleApiClient);
+        }
+    }
+
+    public static void deleteMediaContentFile(GoogleApiClient googleApiClient, DriveId driveId) {
+        driveId.asDriveFile().delete(googleApiClient);
+    }
 }
