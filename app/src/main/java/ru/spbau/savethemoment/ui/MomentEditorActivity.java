@@ -4,25 +4,34 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -32,7 +41,9 @@ import ru.spbau.savethemoment.momentmanager.MomentManager;
 
 public class MomentEditorActivity extends AppCompatActivity {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
+    private static final int CHOOSE_PICTURE_REQUEST_CODE = 1;
 
+    private ViewGroup mediaViewGroup;
     private Toolbar toolbar;
     private Moment moment;
     private EditText title;
@@ -43,6 +54,8 @@ public class MomentEditorActivity extends AppCompatActivity {
     private Button editDate;
     private Button editTime;
     private Button editLocation;
+    private Button addPicture;
+    private LinearLayout layoutMedia;
     private Context context;
     private boolean startedWithMoment;
 
@@ -53,7 +66,7 @@ public class MomentEditorActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momenteditor);
         context = this;
-
+        mediaViewGroup = (ViewGroup) findViewById(R.id.linearlayout_momenteditor_media);
         momentManager = new MomentManager(this);
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momenteditor);
@@ -70,6 +83,7 @@ public class MomentEditorActivity extends AppCompatActivity {
         initDescription();
         initDateAndTime();
         initLocation();
+        initMedia();
         //TODO: edit media content
     }
 
@@ -120,6 +134,14 @@ public class MomentEditorActivity extends AppCompatActivity {
                 String address = data.getStringExtra(ChooseLocationActivity.ADDRESS);
                 location.setText(address);
                 moment.setAddress(address);
+            }
+        }
+        if (requestCode == CHOOSE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            try {
+                InputStream inputStream = context.getContentResolver().openInputStream(data.getData());
+                addPictureToLayout(BitmapFactory.decodeStream(inputStream));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -231,6 +253,21 @@ public class MomentEditorActivity extends AppCompatActivity {
         });
     }
 
+    private void initMedia() {
+        layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momenteditor_media);
+
+        addPicture = (Button) findViewById(R.id.button_momenteditor_addpicture);
+        addPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("image/*");
+                startActivityForResult(pickIntent, CHOOSE_PICTURE_REQUEST_CODE);
+            }
+        });
+
+    }
+
     private void saveTextChanges() {
         moment.setTitle(title.getText().toString());
         moment.setDescription(description.getText().toString());
@@ -245,4 +282,39 @@ public class MomentEditorActivity extends AppCompatActivity {
         moment.setCapturingTime(hour, minute);
         time.setText(timeFormat.format(moment.getCapturingTime().getTime()));
     }
+
+    private void addPictureToLayout(Bitmap bitmap) {
+        final View pictureItem = LayoutInflater.from(context).inflate(
+                R.layout.momenteditor_picture_item, mediaViewGroup, false);
+        ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
+        image.setImageBitmap(bitmap);
+        pictureItem.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                alert.setTitle("Delete picture");
+                alert.setMessage("Are you sure you want to delete picture?");
+                alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        layoutMedia.removeView(pictureItem);
+                        dialog.dismiss();
+                    }
+                });
+                alert.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+                return true;
+            }
+        });
+        layoutMedia.addView(pictureItem);
+    }
+
 }
