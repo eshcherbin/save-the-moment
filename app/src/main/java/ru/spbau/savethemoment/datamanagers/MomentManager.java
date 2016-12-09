@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.widget.SimpleCursorAdapter;
+
+import com.google.android.gms.drive.DriveId;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -22,6 +25,7 @@ public class MomentManager {
 
     private static final String MOMENTS_TABLE = "moments";
     private static final String TAGS_TABLE = "tags";
+    private static final String MEDIA_TABLE = "media";
 
     public static final String MOMENT_ID = "_id";
     public static final String MOMENT_TITLE = "title";
@@ -33,6 +37,9 @@ public class MomentManager {
 
     public static final String TAG_MOMENT_ID = "moment_id";
     public static final String TAG_NAME = "name";
+
+    public static final String MEDIA_MOMENT_ID = "moment_id";
+    public static final String MEDIA_DRIVE_ID = "drive_id";
 
     private static final String[] MOMENT_COLUMNS = new String[]{MOMENT_ID, MOMENT_TITLE,
             MOMENT_DESCRIPTION, MOMENT_CAPTURING_TIME,
@@ -50,6 +57,12 @@ public class MomentManager {
             + TAG_MOMENT_ID + " text not null, "
             + TAG_NAME + " text not null, "
             + "foreign key(" + TAG_MOMENT_ID + ") references " + MOMENTS_TABLE + "(" + MOMENT_ID + ") on delete cascade"
+            + ");";
+    private static final String DB_MEDIA_CREATE = "create table " + MEDIA_TABLE + "("
+            + MEDIA_MOMENT_ID + " text not null, "
+            + MEDIA_DRIVE_ID + " text not null, "
+            + "foreign key(" + MEDIA_MOMENT_ID
+            + ") references " + MOMENTS_TABLE + "(" + MOMENT_ID + ") on delete cascade"
             + ");";
 
     private DBHelper dbHelper;
@@ -201,6 +214,14 @@ public class MomentManager {
         }
     }
 
+    public void insertMediaContent(UUID momentId, DriveId driveId) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MEDIA_MOMENT_ID, momentId.toString());
+        contentValues.put(MEDIA_DRIVE_ID, driveId.encodeToString());
+        database.insert(MEDIA_TABLE, null, contentValues);
+    }
+
     protected Set<String> getTagsByMomentId(UUID momentId) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         Cursor tagsCursor = database.query(TAGS_TABLE, new String[]{TAG_NAME}, TAG_MOMENT_ID + "=?",
@@ -220,6 +241,7 @@ public class MomentManager {
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(DB_MOMENTS_CREATE);
+            db.execSQL(DB_TAGS_CREATE);
             db.execSQL(DB_TAGS_CREATE);
         }
 
