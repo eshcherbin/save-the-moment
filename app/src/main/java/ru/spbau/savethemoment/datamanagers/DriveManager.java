@@ -3,6 +3,7 @@ package ru.spbau.savethemoment.datamanagers;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
@@ -17,9 +18,10 @@ import java.util.UUID;
 
 public class DriveManager {
 
-    public static DriveContents loadFileContents(GoogleApiClient googleApiClient, DriveId driveId) {
+    public static void loadFileContents(GoogleApiClient googleApiClient, DriveId driveId,
+                                                 ResultCallback<DriveApi.DriveContentsResult> resultCallback) {
         DriveFile driveFile = driveId.asDriveFile();
-        return driveFile.open(googleApiClient, DriveFile.MODE_READ_ONLY, null).await().getDriveContents();
+        driveFile.open(googleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(resultCallback);
     }
 
     public static void createMediaContentFile(GoogleApiClient googleApiClient, UUID momentId, DriveContents contents,

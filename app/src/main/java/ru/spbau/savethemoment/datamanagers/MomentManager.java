@@ -224,6 +224,12 @@ public class MomentManager {
         database.insert(MEDIA_TABLE, null, contentValues);
     }
 
+    public void deleteMediaContent(UUID momentId, DriveId driveId) {
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+        database.delete(MEDIA_TABLE, MEDIA_DRIVE_ID + "=? and " + MEDIA_MOMENT_ID + "=?",
+                        new String[]{driveId.encodeToString(), momentId.toString()});
+    }
+
     public List<DriveId> getMediaContentListByMomentId(UUID momentId) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
         Cursor driveIdsCursor = database.query(MEDIA_TABLE, new String[]{MEDIA_DRIVE_ID}, MEDIA_MOMENT_ID + "=?",
@@ -256,7 +262,7 @@ public class MomentManager {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(DB_MOMENTS_CREATE);
             db.execSQL(DB_TAGS_CREATE);
-            db.execSQL(DB_TAGS_CREATE);
+            db.execSQL(DB_MEDIA_CREATE);
         }
 
         @Override

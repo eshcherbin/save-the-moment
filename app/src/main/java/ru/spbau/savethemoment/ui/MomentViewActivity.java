@@ -6,6 +6,7 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,14 +14,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveId;
+
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
 
-public class MomentViewActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Moment> {
+public class MomentViewActivity extends AppCompatActivity
+        implements LoaderManager.LoaderCallbacks<MomentViewActivity.MomentWithMediaContent> {
 
     public static final String MOMENT_ID = "MomentId";
 
@@ -29,6 +36,7 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     private Toolbar toolbar;
     private UUID momentId;
     private Moment moment;
+    private List<DriveId> mediaContentDriveIds;
     private Menu menu;
     private MomentManager momentManager;
 
@@ -46,19 +54,20 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     }
 
     @Override
-    public Loader<Moment> onCreateLoader(int id, Bundle args) {
+    public Loader<MomentWithMediaContent> onCreateLoader(int id, Bundle args) {
         return new MomentLoader(this, momentId);
     }
 
     @Override
-    public void onLoadFinished(Loader<Moment> loader, Moment data) {
-        moment = data;
+    public void onLoadFinished(Loader<MomentWithMediaContent> loader, MomentWithMediaContent data) {
+        moment = data.moment;
+        mediaContentDriveIds = data.mediaContentDriveIds;
         setSupportActionBar(toolbar);
         display();
     }
 
     @Override
-    public void onLoaderReset(Loader<Moment> loader) {
+    public void onLoaderReset(Loader<MomentWithMediaContent> loader) {
         moment = null;
     }
 
@@ -84,6 +93,7 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
             Intent intent = new Intent(this, MomentEditorActivity.class);
             intent.putExtra("Parent", "MomentView");
             intent.putExtra("Moment", moment);
+            intent.putExtra("MediaContent", (Serializable) mediaContentDriveIds);
             startActivityForResult(intent, EDIT_MOMENT);
             return true;
         }
@@ -98,7 +108,8 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == EDIT_MOMENT && resultCode == Activity.RESULT_OK) {
-            moment = data.getParcelableExtra("Moment");
+//            moment = data.getParcelableExtra("Moment");
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
             display();
             showLocationButton();
         } else {
@@ -128,14 +139,23 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
         TextView capturingTime = (TextView) findViewById(R.id.textview_momentview_capturingtime);
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd MMM yyyy hh:mm");
         capturingTime.setText(dateFormat.format(moment.getCapturingTime().getTime()));
-
-        //TODO: displaying media content
     }
 
-    private static class MomentLoader extends AsyncTaskLoader<Moment> {
+    public static class MomentWithMediaContent {
+        public Moment moment;
+        public List<DriveId> mediaContentDriveIds;
+
+        public MomentWithMediaContent(Moment moment, List<DriveId> mediaContentDriveIds) {
+            this.moment = moment;
+            this.mediaContentDriveIds = mediaContentDriveIds;
+        }
+    }
+
+    private static class MomentLoader extends AsyncTaskLoader<MomentWithMediaContent> {
         private MomentManager momentManager;
         private UUID momentId;
-        private Moment data;
+        private Moment moment;
+        private List<DriveId> mediaContentDriveIds;
 
         public MomentLoader(Context context, UUID momentId) {
             super(context);
@@ -146,22 +166,24 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
         @Override
         protected void onReset() {
             super.onReset();
-            data = null;
+            moment = null;
+            mediaContentDriveIds = null;
         }
 
         @Override
         protected void onStartLoading() {
-            if (takeContentChanged() || data == null) {
+            if (takeContentChanged() || moment == null || mediaContentDriveIds == null) {
                 forceLoad();
             } else {
-                deliverResult(data);
+                deliverResult(new MomentWithMediaContent(moment, mediaContentDriveIds));
             }
         }
 
         @Override
-        public Moment loadInBackground() {
-            data = momentManager.getMomentById(momentId);
-            return data;
+        public MomentWithMediaContent loadInBackground() {
+            moment = momentManager.getMomentById(momentId);
+            mediaContentDriveIds = momentManager.getMediaContentListByMomentId(momentId);
+            return new MomentWithMediaContent(moment, mediaContentDriveIds);
         }
     }
 }
