@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -88,8 +90,26 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
             return true;
         }
         if (id == R.id.menuitem_momentview_delete) {
-            momentManager.deleteMomentById(moment.getId());
-            finish();
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("Delete this moment");
+            alert.setMessage("Are you sure you want to delete this moment?");
+            alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    momentManager.deleteMomentById(moment.getId());
+                    finish();
+                    dialog.dismiss();
+                }
+            });
+            alert.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
         }
 
         return false;
