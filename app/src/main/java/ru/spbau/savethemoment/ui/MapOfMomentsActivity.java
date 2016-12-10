@@ -56,6 +56,14 @@ public class MapOfMomentsActivity extends FragmentActivity implements
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (!isSingleMoment) {
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
+        }
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
         if (isSingleMoment) {

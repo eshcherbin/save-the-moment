@@ -29,11 +29,15 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     private Toolbar toolbar;
     private UUID momentId;
     private Moment moment;
+    private Menu menu;
+    private MomentManager momentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momentview);
+
+        momentManager = new MomentManager(this);
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
 
@@ -60,11 +64,9 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         getMenuInflater().inflate(R.menu.menu_momentview, menu);
-        if (moment.getLocation() == null) {
-            MenuItem showOnMapItem = menu.findItem(R.id.menuitem_momentview_onmap);
-            showOnMapItem.setVisible(false);
-        }
+        showLocationButton();
         return true;
     }
 
@@ -85,6 +87,10 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
             startActivityForResult(intent, EDIT_MOMENT);
             return true;
         }
+        if (id == R.id.menuitem_momentview_delete) {
+            momentManager.deleteMomentById(moment.getId());
+            finish();
+        }
 
         return false;
     }
@@ -94,9 +100,15 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
         if (requestCode == EDIT_MOMENT && resultCode == Activity.RESULT_OK) {
             moment = data.getParcelableExtra("Moment");
             display();
+            showLocationButton();
         } else {
             assert false : "MomentEditor didn't return a moment";
         }
+    }
+
+    private void showLocationButton() {
+        MenuItem showOnMapItem = menu.findItem(R.id.menuitem_momentview_onmap);
+        showOnMapItem.setVisible(moment.getLocation() != null);
     }
 
     private void display() {

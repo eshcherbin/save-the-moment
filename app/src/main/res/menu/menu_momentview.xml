@@ -4,13 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".ui.MomentViewActivity">
     <item
+        android:id="@+id/menuitem_momentview_onmap"
+        android:orderInCategory="100"
+        android:title="@string/menuitem_momentview_onmap_text"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menuitem_momentview_edit"
         android:orderInCategory="100"
         android:title="@string/menuitem_momentview_edit_text"
         app:showAsAction="never" />
     <item
-        android:id="@+id/menuitem_momentview_onmap"
+        android:id="@+id/menuitem_momentview_delete"
         android:orderInCategory="100"
-        android:title="@string/menuitem_momentview_onmap_text"
+        android:title="@string/menuitem_momentview_delete_text"
         app:showAsAction="never" />
 </menu>
