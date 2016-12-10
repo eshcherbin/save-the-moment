@@ -16,7 +16,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.List;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
@@ -54,6 +53,14 @@ public class MapOfMomentsActivity extends FragmentActivity implements
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_of_moments_fragment);
         mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!isSingleMoment) {
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
+        }
     }
 
     @Override
