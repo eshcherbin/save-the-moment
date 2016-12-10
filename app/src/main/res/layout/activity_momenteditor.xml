@@ -14,7 +14,7 @@
 
     <EditText
         android:gravity="center"
-        android:text="@string/edittext_momenteditor_title_text"
+        android:hint="@string/edittext_momenteditor_title_text"
         android:textSize="25sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -82,13 +82,12 @@
         </LinearLayout>
 
         <EditText
-            android:text="@string/edittext_momenteditor_description_text"
+            android:hint="@string/edittext_momenteditor_description_text"
             android:textSize="20sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/edittext_momenteditor_description"
             android:layout_weight="1" />
-
     </LinearLayout>
 
 </LinearLayout>

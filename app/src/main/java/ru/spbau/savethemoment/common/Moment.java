@@ -6,7 +6,6 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
@@ -96,7 +95,7 @@ public class Moment implements Parcelable {
     }
 
     public static Moment createCurrentMoment() {
-        return new Moment(UUID.randomUUID(), "Title", "Description",
+        return new Moment(UUID.randomUUID(), "", "",
                 Calendar.getInstance(), null, null, null);
     }
 

@@ -9,6 +9,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +19,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -80,6 +83,10 @@ public class MomentEditorActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.menuitem_momenteditor_save) {
+            if (checkIfTitleEmpty()) {
+                Toast.makeText(context, "Title is required", Toast.LENGTH_SHORT).show();
+                return true;
+            }
             saveTextChanges();
             if (startedWithMoment) {
                 momentManager.updateMoment(moment);
@@ -117,9 +124,37 @@ public class MomentEditorActivity extends AppCompatActivity {
         }
     }
 
+    boolean checkIfTitleEmpty() {
+        return title.getText().toString().length() <= 0;
+    }
+
+    void setErrorOnTitle() {
+        if (checkIfTitleEmpty()) {
+            title.setError("Title is required");
+        } else {
+            title.setError(null);
+        }
+    }
+
     private void initTitle() {
         title = (EditText) findViewById(R.id.edittext_momenteditor_title);
         title.setText(moment.getTitle());
+        setErrorOnTitle();
+        title.addTextChangedListener(new TextWatcher()  {
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)  {
+                setErrorOnTitle();
+            }
+        });
     }
 
     private void initDescription() {
