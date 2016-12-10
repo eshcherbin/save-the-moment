@@ -91,9 +91,9 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
         }
         if (id == R.id.menuitem_momentview_delete) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
-            alert.setTitle("Delete this moment");
-            alert.setMessage("Are you sure you want to delete this moment?");
-            alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            alert.setTitle(R.string.alertdialog_delete_moment_title);
+            alert.setMessage(R.string.alertdialog_delete_moment_text);
+            alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -102,7 +102,7 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
                     dialog.dismiss();
                 }
             });
-            alert.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
