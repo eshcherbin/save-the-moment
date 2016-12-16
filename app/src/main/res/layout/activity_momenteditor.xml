@@ -88,6 +88,22 @@
             android:layout_height="wrap_content"
             android:id="@+id/edittext_momenteditor_description"
             android:layout_weight="1" />
+
+        <Button
+            android:text="@string/button_momenteditor_tags_add_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_momenteditor_tags_add"
+            android:layout_weight="1" />
+
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/linearlayout_momenteditor_tags"
+            android:textSize="15sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
     </LinearLayout>
 
 </LinearLayout>

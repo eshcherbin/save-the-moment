@@ -94,6 +94,14 @@ public class Moment implements Parcelable {
         this.address = address;
     }
 
+    public void addTag(String tag) {
+        tags.add(tag);
+    }
+
+    public void deleteTag(String tag) {
+        tags.remove(tag);
+    }
+
     public static Moment createCurrentMoment() {
         return new Moment(UUID.randomUUID(), "", "", Calendar.getInstance(), null, null, null);
     }

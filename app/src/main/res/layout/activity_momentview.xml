@@ -52,6 +52,14 @@
             android:id="@+id/textview_momentview_description"
             android:layout_weight="1" />
 
+        <TextView
+            android:text="@string/textview_momentview_tags_text"
+            android:textSize="15sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textview_momentview_tags"
+            android:layout_weight="1" />
+
     </LinearLayout>
 
 </LinearLayout>

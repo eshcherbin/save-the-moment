@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -30,6 +34,8 @@ import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
 
+import static ru.spbau.savethemoment.R.string.alertdialog_tags_delete_text;
+
 public class MomentEditorActivity extends AppCompatActivity {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
 
@@ -40,9 +46,11 @@ public class MomentEditorActivity extends AppCompatActivity {
     private TextView date;
     private TextView time;
     private TextView location;
+    private LinearLayout tags;
     private Button editDate;
     private Button editTime;
     private Button editLocation;
+    private Button addTag;
     private Context context;
     private boolean startedWithMoment;
 
@@ -70,6 +78,7 @@ public class MomentEditorActivity extends AppCompatActivity {
         initDescription();
         initDateAndTime();
         initLocation();
+        initTags();
         //TODO: edit media content
     }
 
@@ -229,6 +238,79 @@ public class MomentEditorActivity extends AppCompatActivity {
                 startActivityForResult(intent, CHOOSE_LOCATION_REQUEST_CODE);
             }
         });
+    }
+
+    private void initTags() {
+        tags = (LinearLayout) findViewById(R.id.linearlayout_momenteditor_tags);
+        displayTags();
+
+        addTag = (Button) findViewById(R.id.button_momenteditor_tags_add);
+        addTag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(R.string.alertdialog_tags_add);
+                final EditText input = new EditText(context);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                builder.setPositiveButton(R.string.alertdialog_ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        moment.addTag(input.getText().toString());
+                        displayTags();
+                    }
+                });
+                builder.setNegativeButton(R.string.alertdialog_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
+    }
+
+    private void displayTags() {
+        tags.removeAllViews();
+        for (String tag : moment.getTags()) {
+            final TextView tagText = new TextView(context);
+            tagText.setText(tag);
+            tags.addView(tagText);
+            tagText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                    alert.setTitle(R.string.alertdialog_tags_delete_title);
+                    alert.setMessage(getResources().getString(alertdialog_tags_delete_text) +
+                            " \"" +
+                            tagText.getText().toString() +
+                            "\"?");
+                    alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            moment.deleteTag(tagText.getText().toString());
+                            tags.removeView(tagText);
+                            dialog.dismiss();
+                        }
+                    });
+                    alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    alert.show();
+
+                    return true;
+                }
+            });
+        }
     }
 
     private void saveTextChanges() {

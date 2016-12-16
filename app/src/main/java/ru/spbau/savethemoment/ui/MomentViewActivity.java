@@ -149,6 +149,15 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd MMM yyyy hh:mm");
         capturingTime.setText(dateFormat.format(moment.getCapturingTime().getTime()));
 
+        TextView tags = (TextView) findViewById(R.id.textview_momentview_tags);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String tag : moment.getTags()) {
+            if (stringBuilder.length() > 0) {
+                stringBuilder.append(", ");
+            }
+            stringBuilder.append(tag);
+        }
+        tags.setText(stringBuilder.toString());
         //TODO: displaying media content
     }
 
