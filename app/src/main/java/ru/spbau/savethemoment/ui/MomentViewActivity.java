@@ -5,16 +5,26 @@ import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.Loader;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveId;
 
 import java.io.Serializable;
@@ -24,21 +34,27 @@ import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
+import ru.spbau.savethemoment.datamanagers.DriveManager;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
 
 public class MomentViewActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<MomentViewActivity.MomentWithMediaContent> {
+        implements LoaderManager.LoaderCallbacks<MomentViewActivity.MomentWithMediaContent>, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     public static final String MOMENT_ID = "MomentId";
 
     private static final int LOADER_ID = 0;
     private static final int EDIT_MOMENT = 1;
+    private static final int RESOLVE_CONNECTION_REQUEST_CODE = 2;
+
     private Toolbar toolbar;
     private UUID momentId;
     private Moment moment;
     private List<DriveId> mediaContentDriveIds;
     private Menu menu;
     private MomentManager momentManager;
+
+    private GoogleApiClient googleApiClient;
+    private boolean hasDownloadedMedia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +63,46 @@ public class MomentViewActivity extends AppCompatActivity
 
         momentManager = new MomentManager(this);
 
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addConnectionCallbacks(this)
+                .addApi(Drive.API)
+                .addScope(Drive.SCOPE_APPFOLDER)
+                .build();
+        hasDownloadedMedia = false;
+
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
 
         momentId = (UUID) getIntent().getSerializableExtra(MOMENT_ID);
         getLoaderManager().initLoader(LOADER_ID, null, this);
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (!hasDownloadedMedia && mediaContentDriveIds != null) {
+            hasDownloadedMedia = true;
+            for (DriveId driveId : mediaContentDriveIds) {
+                //TODO: display media
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        if (connectionResult.hasResolution()) {
+            try {
+                connectionResult.startResolutionForResult(this, RESOLVE_CONNECTION_REQUEST_CODE);
+            } catch (IntentSender.SendIntentException e) {
+                Toast.makeText(this, R.string.google_services_connection_failed_message, Toast.LENGTH_LONG).show();
+            }
+        } else {
+            GoogleApiAvailability.getInstance().getErrorDialog(this, connectionResult.getErrorCode(), 0);
+        }
     }
 
     @Override
@@ -99,6 +151,7 @@ public class MomentViewActivity extends AppCompatActivity
         }
         if (id == R.id.menuitem_momentview_delete) {
             momentManager.deleteMomentById(moment.getId());
+//            DriveManager.deleteMomentFolder(googleApiClient, momentId);
             finish();
         }
 

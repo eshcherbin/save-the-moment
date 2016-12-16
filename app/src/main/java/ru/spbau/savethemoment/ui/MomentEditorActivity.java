@@ -6,8 +6,10 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,17 +35,22 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveContents;
+import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
@@ -53,11 +60,12 @@ import ru.spbau.savethemoment.datamanagers.MomentManager;
 public class MomentEditorActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
     private static final int CHOOSE_PICTURE_REQUEST_CODE = 1;
+    private static final int RESOLVE_CONNECTION_REQUEST_CODE = 2;
 
     private ViewGroup mediaViewGroup;
     private Toolbar toolbar;
     private Moment moment;
-    private List<DriveId> mediaContentDriveIds;
+    private List<DriveId> initialMediaContentDriveIds;
     private EditText title;
     private EditText description;
     private TextView date;
@@ -70,6 +78,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
     private LinearLayout layoutMedia;
     private Context context;
     private boolean startedWithMoment;
+    private boolean hasDownloadedMedia;
 
     private MomentManager momentManager;
     private GoogleApiClient googleApiClient;
@@ -82,7 +91,13 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         mediaViewGroup = (ViewGroup) findViewById(R.id.linearlayout_momenteditor_media);
         momentManager = new MomentManager(this);
 
-        googleApiClient = new GoogleApiClient.Builder(this).addOnConnectionFailedListener(this).addConnectionCallbacks(this).addApi(Drive.API).build();
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addConnectionCallbacks(this)
+                .addApi(Drive.API)
+                .addScope(Drive.SCOPE_APPFOLDER)
+                .build();
+        hasDownloadedMedia = false;
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momenteditor);
         setSupportActionBar(toolbar);
@@ -90,7 +105,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         startedWithMoment = getIntent().hasExtra("Moment");
         if (startedWithMoment) {
             moment = getIntent().getParcelableExtra("Moment");
-            mediaContentDriveIds = (List<DriveId>) getIntent().getSerializableExtra("MediaContent");
+            initialMediaContentDriveIds = (List<DriveId>) getIntent().getSerializableExtra("MediaContent");
         } else {
             moment = Moment.createCurrentMoment();
         }
@@ -130,14 +145,61 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 return true;
             }
             saveTextChanges();
+            Set<Bitmap> mediaToAdd = new HashSet<>();
+            Set<DriveId> mediaNotToDelete = new HashSet<>();
+            for (int i = 0; i < layoutMedia.getChildCount(); i++) {
+                ImageView imageView;
+                try {
+                    View pictureItem = layoutMedia.getChildAt(i);
+                    imageView = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
+                } catch (ClassCastException e) {
+                    continue;
+                }
+                DriveId driveId = (DriveId) imageView.getTag();
+                if (driveId != null) {
+                    mediaNotToDelete.add(driveId);
+                } else {
+                    mediaToAdd.add(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                }
+            }
             if (startedWithMoment) {
                 momentManager.updateMoment(moment);
+                if (googleApiClient.isConnected()) {
+                    for (DriveId driveId : initialMediaContentDriveIds) {
+                        if (!mediaNotToDelete.contains(driveId)) {
+                            DriveManager.deleteMediaContentFile(googleApiClient, driveId);
+                            momentManager.deleteMediaContent(moment.getId(), driveId);
+                        }
+                    }
+                    for (Bitmap bitmap : mediaToAdd) {
+                        new DriveManager.UploadMediaTask(googleApiClient, moment.getId(), bitmap,
+                                new ResultCallback<DriveFolder.DriveFileResult>() {
+                                    @Override
+                                    public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
+                                        momentManager.insertMediaContent(moment.getId(),
+                                                driveFileResult.getDriveFile().getDriveId());
+                                        Log.d("ResultCallback", "completed");
+                                    }
+                                }).execute();
+                    }
+                }
                 Intent intent = new Intent();
 //                intent.putExtra("Moment", moment);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             } else {
                 momentManager.insertMoment(moment);
+                for (Bitmap bitmap : mediaToAdd) {
+                    new DriveManager.UploadMediaTask(googleApiClient, moment.getId(), bitmap,
+                            new ResultCallback<DriveFolder.DriveFileResult>() {
+                                @Override
+                                public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
+                                    momentManager.insertMediaContent(moment.getId(),
+                                            driveFileResult.getDriveFile().getDriveId());
+                                    Log.d("ResultCallback", "completed");
+                                }
+                            }).execute();
+                }
                 Intent intent = new Intent(this, MomentViewActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("MomentId", moment.getId());
@@ -167,9 +229,16 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         if (requestCode == CHOOSE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
             try {
                 InputStream inputStream = context.getContentResolver().openInputStream(data.getData());
-                addPictureToLayout(BitmapFactory.decodeStream(inputStream));
+                addPictureToLayout(BitmapFactory.decodeStream(inputStream), null);
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+        }
+        if (requestCode == RESOLVE_CONNECTION_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                googleApiClient.connect();
+            } else {
+                Toast.makeText(this, R.string.google_services_connection_failed_message, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -293,20 +362,6 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 startActivityForResult(pickIntent, CHOOSE_PICTURE_REQUEST_CODE);
             }
         });
-
-        if (mediaContentDriveIds != null && googleApiClient.isConnected()) {
-            for (DriveId driveId : mediaContentDriveIds) {
-                DriveManager.loadFileContents(googleApiClient, driveId,
-                        new ResultCallback<DriveApi.DriveContentsResult>() {
-                            @Override
-                            public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
-                                addPictureToLayout(
-                                        BitmapFactory.decodeStream(driveContentsResult.getDriveContents()
-                                                                                      .getInputStream()));
-                            }
-                        });
-            }
-        }
     }
 
     private void saveTextChanges() {
@@ -324,7 +379,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         time.setText(timeFormat.format(moment.getCapturingTime().getTime()));
     }
 
-    private void addPictureToLayout(Bitmap bitmap) {
+    private void addPictureToLayout(Bitmap bitmap, DriveId driveId) {
         final View pictureItem = LayoutInflater.from(context).inflate(
                 R.layout.momenteditor_picture_item, mediaViewGroup, false);
         ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
@@ -355,12 +410,26 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 return true;
             }
         });
+        pictureItem.setTag(driveId);
         layoutMedia.addView(pictureItem);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.d("TAG", "Connectioin successful");
+        if (!hasDownloadedMedia && initialMediaContentDriveIds != null) {
+            hasDownloadedMedia = true;
+            for (DriveId driveId : initialMediaContentDriveIds) {
+                DriveManager.loadFileContents(googleApiClient, driveId,
+                        new ResultCallback<DriveApi.DriveContentsResult>() {
+                            @Override
+                            public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
+                                DriveContents driveContents = driveContentsResult.getDriveContents();
+                                addPictureToLayout(BitmapFactory.decodeStream(driveContents.getInputStream()),
+                                                   driveContents.getDriveId());
+                            }
+                        });
+            }
+        }
     }
 
     @Override
@@ -370,6 +439,14 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        connectionResult.getResolution()
+        if (connectionResult.hasResolution()) {
+            try {
+                connectionResult.startResolutionForResult(this, RESOLVE_CONNECTION_REQUEST_CODE);
+            } catch (IntentSender.SendIntentException e) {
+                Toast.makeText(this, R.string.google_services_connection_failed_message, Toast.LENGTH_LONG).show();
+            }
+        } else {
+            GoogleApiAvailability.getInstance().getErrorDialog(this, connectionResult.getErrorCode(), 0);
+        }
     }
 }
