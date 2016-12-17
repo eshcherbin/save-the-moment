@@ -1,5 +1,6 @@
 package ru.spbau.savethemoment.datamanagers;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -74,14 +75,18 @@ public class DriveManager {
         private ResultCallback<DriveFolder.DriveFileResult> resultCallback;
         private GoogleApiClient googleApiClient;
 
-        public UploadMediaTask(GoogleApiClient googleApiClient,
+        public UploadMediaTask(Context context,
                                UUID momentId,
                                Bitmap bitmap,
                                ResultCallback<DriveFolder.DriveFileResult> resultCallback) {
             this.momentId = momentId;
             this.bitmap = bitmap;
             this.resultCallback = resultCallback;
-            this.googleApiClient = googleApiClient;
+            googleApiClient = new GoogleApiClient.Builder(context)
+                    .addApi(Drive.API)
+                    .addScope(Drive.SCOPE_APPFOLDER)
+                    .build();
+            googleApiClient.connect();
         }
 
         @Override
@@ -95,6 +100,11 @@ public class DriveManager {
             DriveManager.createMediaContentFile(googleApiClient, momentId, driveContents, resultCallback);
             Log.d("UploadMediaTask", "completed");
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            googleApiClient.disconnect();
         }
     }
 }

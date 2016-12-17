@@ -119,18 +119,6 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        googleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        googleApiClient.disconnect();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_momenteditor, menu);
         return true;
@@ -172,7 +160,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                         }
                     }
                     for (Bitmap bitmap : mediaToAdd) {
-                        new DriveManager.UploadMediaTask(googleApiClient, moment.getId(), bitmap,
+                        new DriveManager.UploadMediaTask(getApplicationContext(), moment.getId(), bitmap,
                                 new ResultCallback<DriveFolder.DriveFileResult>() {
                                     @Override
                                     public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
@@ -190,7 +178,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
             } else {
                 momentManager.insertMoment(moment);
                 for (Bitmap bitmap : mediaToAdd) {
-                    new DriveManager.UploadMediaTask(googleApiClient, moment.getId(), bitmap,
+                    new DriveManager.UploadMediaTask(getApplicationContext(), moment.getId(), bitmap,
                             new ResultCallback<DriveFolder.DriveFileResult>() {
                                 @Override
                                 public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
