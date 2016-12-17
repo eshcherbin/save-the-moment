@@ -15,7 +15,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.cunoraz.tagview.Tag;
+import com.cunoraz.tagview.TagView;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
@@ -149,15 +155,17 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd MMM yyyy hh:mm");
         capturingTime.setText(dateFormat.format(moment.getCapturingTime().getTime()));
 
-        TextView tags = (TextView) findViewById(R.id.textview_momentview_tags);
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String tag : moment.getTags()) {
-            if (stringBuilder.length() > 0) {
-                stringBuilder.append(", ");
-            }
-            stringBuilder.append(tag);
+        TagView tags = (TagView)findViewById(R.id.tagview_momentview_tags);
+        tags.removeAll();
+        Set<String> setOfTags = moment.getTags();
+        List<Tag> listOfTags = new ArrayList<>();
+        for (String tagText : setOfTags) {
+            Tag tag = new Tag(tagText);
+            tag.isDeletable = false;
+            tag.layoutColorPress = tag.layoutColor;
+            listOfTags.add(tag);
         }
-        tags.setText(stringBuilder.toString());
+        tags.addTags(listOfTags);
         //TODO: displaying media content
     }
 

@@ -12,25 +12,27 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.cunoraz.tagview.Tag;
+import com.cunoraz.tagview.TagView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Set;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
@@ -41,19 +43,18 @@ import static ru.spbau.savethemoment.R.string.alertdialog_tags_delete_text;
 public class MomentEditorActivity extends AppCompatActivity {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
 
-    private ViewGroup tagsViewGroup;
     private Toolbar toolbar;
     private Moment moment;
     private EditText title;
     private EditText description;
+    private EditText enterTag;
     private TextView date;
     private TextView time;
     private TextView location;
-    private LinearLayout tags;
     private Button editDate;
     private Button editTime;
     private Button editLocation;
-    private Button addTag;
+    private TagView tags;
     private Context context;
     private boolean startedWithMoment;
 
@@ -63,8 +64,6 @@ public class MomentEditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momenteditor);
-
-        tagsViewGroup = (ViewGroup) findViewById(R.id.linearlayout_momenteditor_tags);
 
         context = this;
 
@@ -247,77 +246,77 @@ public class MomentEditorActivity extends AppCompatActivity {
     }
 
     private void initTags() {
-        tags = (LinearLayout) findViewById(R.id.linearlayout_momenteditor_tags);
+        tags = (TagView)findViewById(R.id.tagview_momenteditor_tags);
         displayTags();
 
-        addTag = (Button) findViewById(R.id.button_momenteditor_tags_add);
-        addTag.setOnClickListener(new View.OnClickListener() {
+        enterTag = (EditText) findViewById(R.id.edittext_momenteditor_tags_add);
+        enterTag.setOnKeyListener(new View.OnKeyListener() {
             @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(R.string.alertdialog_tags_add);
-                final EditText input = new EditText(context);
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-
-                builder.setPositiveButton(R.string.alertdialog_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        moment.addTag(input.getText().toString());
-                        displayTags();
-                    }
-                });
-                builder.setNegativeButton(R.string.alertdialog_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    addTag();
+                    return true;
+                }
+                return false;
             }
         });
     }
 
     private void displayTags() {
-        tags.removeAllViews();
-        for (String tag : moment.getTags()) {
-            final View tagItem = LayoutInflater.from(context).inflate(
-                    R.layout.linearlayout_momenteditor_tags_item, tagsViewGroup, false);
-            final TextView tagText = (TextView) tagItem.findViewById(R.id.textview_momenteditor_tags_item);
-            tagText.setText(tag);
-            final Button deleteTag = (Button) tagItem.findViewById(R.id.button_momenteditor_tags_item);
-            deleteTag.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                    alert.setTitle(R.string.alertdialog_tags_delete_title);
-                    alert.setMessage(getResources().getString(alertdialog_tags_delete_text) +
-                            " \"" +
-                            tagText.getText().toString() +
-                            "\"?");
-                    alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            moment.deleteTag(tagText.getText().toString());
-                            tags.removeView(tagItem);
-                            dialog.dismiss();
-                        }
-                    });
-                    alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-
-                    alert.show();
-                }
-            });
-            tags.addView(tagItem);
+        tags.removeAll();
+        Set<String> setOfTags = moment.getTags();
+        List<Tag> listOfTags = new ArrayList<>();
+        for (String tagText : setOfTags) {
+            listOfTags.add(tagFromString(tagText));
         }
+        tags.addTags(listOfTags);
+        tags.setOnTagClickListener(new TagView.OnTagClickListener() {
+            @Override
+            public void onTagClick(final Tag tag, final int i) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                alert.setTitle(R.string.alertdialog_tags_delete_title);
+                alert.setMessage(getResources().getString(alertdialog_tags_delete_text) +
+                        " \"" +
+                        tag.text +
+                        "\"?");
+                alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeTag(tag, i);
+                        dialog.dismiss();
+                    }
+                });
+                alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+            }
+        });
+    }
+
+    private void addTag() {
+        String tagText = enterTag.getText().toString();
+        moment.addTag(tagText);
+        enterTag.setText("");
+        tags.addTag(tagFromString(tagText));
+    }
+
+    private void removeTag(Tag tag, int i) {
+        tags.remove(i);
+        moment.deleteTag(tag.text);
+    }
+
+    private Tag tagFromString(String tagText) {
+        Tag tag = new Tag(tagText);
+        tag.isDeletable = true;
+        return tag;
     }
 
     private void saveTextChanges() {

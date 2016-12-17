@@ -52,13 +52,18 @@
             android:id="@+id/textview_momentview_description"
             android:layout_weight="1" />
 
-        <TextView
-            android:text="@string/textview_momentview_tags_text"
-            android:textSize="15sp"
+        <com.cunoraz.tagview.TagView
+            xmlns:tagview="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/tagview_momentview_tags"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textview_momentview_tags"
-            android:layout_weight="1" />
+            android:layout_height="match_parent"
+            android:layout_margin="10dp"
+            tagview:lineMargin="5dp"
+            tagview:tagMargin="5dp"
+            tagview:textPaddingLeft="8dp"
+            tagview:textPaddingTop="5dp"
+            tagview:textPaddingRight="8dp"
+            tagview:textPaddingBottom="5dp" />
 
     </LinearLayout>
 
