@@ -160,15 +160,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                         }
                     }
                     for (Bitmap bitmap : mediaToAdd) {
-                        new DriveManager.UploadMediaTask(getApplicationContext(), moment.getId(), bitmap,
-                                new ResultCallback<DriveFolder.DriveFileResult>() {
-                                    @Override
-                                    public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
-                                        momentManager.insertMediaContent(moment.getId(),
-                                                driveFileResult.getDriveFile().getDriveId());
-                                        Log.d("ResultCallback", "completed");
-                                    }
-                                }).execute();
+                        new DriveManager.UploadMediaTask(getApplicationContext(), moment.getId(), bitmap).execute();
                     }
                 }
                 Intent intent = new Intent();
@@ -178,15 +170,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
             } else {
                 momentManager.insertMoment(moment);
                 for (Bitmap bitmap : mediaToAdd) {
-                    new DriveManager.UploadMediaTask(getApplicationContext(), moment.getId(), bitmap,
-                            new ResultCallback<DriveFolder.DriveFileResult>() {
-                                @Override
-                                public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
-                                    momentManager.insertMediaContent(moment.getId(),
-                                            driveFileResult.getDriveFile().getDriveId());
-                                    Log.d("ResultCallback", "completed");
-                                }
-                            }).execute();
+                    new DriveManager.UploadMediaTask(getApplicationContext(), moment.getId(), bitmap).execute();
                 }
                 Intent intent = new Intent(this, MomentViewActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
