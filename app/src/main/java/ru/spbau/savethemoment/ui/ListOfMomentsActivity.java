@@ -95,12 +95,8 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
                     }
                     return;
                 }
-                String[] tags = tagsSeparatorPattern.split(s);
-                for (int i = 0; i < tags.length; i++) {
-                    tags[i] = tags[i].trim();
-                }
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(tags)));
+                bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(processStringOfTags(s))));
                 getLoaderManager().restartLoader(LOADER_ID, bundle, ListOfMomentsActivity.this);
             }
 
@@ -135,7 +131,15 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
     @Override
     protected void onStart() {
         super.onStart();
-        getLoaderManager().restartLoader(LOADER_ID, null, this);
+        final EditText editTextTagsToFilter = (EditText) findViewById(R.id.edittext_list_of_moments_tags);
+        CharSequence s = ((EditText) findViewById(R.id.edittext_list_of_moments_tags)).getText();
+        if (s.length() == 0) {
+            getLoaderManager().restartLoader(LOADER_ID, null, this);
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(processStringOfTags(s))));
+            getLoaderManager().restartLoader(LOADER_ID, bundle, this);
+        }
     }
 
     @Override
@@ -199,6 +203,14 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             }
 
         }
+    }
+
+    private String[] processStringOfTags(CharSequence s) {
+        String[] tags = tagsSeparatorPattern.split(s);
+        for (int i = 0; i < tags.length; i++) {
+            tags[i] = tags[i].trim();
+        }
+        return tags;
     }
 
 }

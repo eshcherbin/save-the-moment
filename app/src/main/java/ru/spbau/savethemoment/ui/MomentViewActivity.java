@@ -4,16 +4,24 @@ import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.cunoraz.tagview.Tag;
+import com.cunoraz.tagview.TagView;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
@@ -88,8 +96,26 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
             return true;
         }
         if (id == R.id.menuitem_momentview_delete) {
-            momentManager.deleteMomentById(moment.getId());
-            finish();
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(R.string.alertdialog_delete_moment_title);
+            alert.setMessage(R.string.alertdialog_delete_moment_text);
+            alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    momentManager.deleteMomentById(moment.getId());
+                    finish();
+                    dialog.dismiss();
+                }
+            });
+            alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
         }
 
         return false;
@@ -129,6 +155,17 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd MMM yyyy hh:mm");
         capturingTime.setText(dateFormat.format(moment.getCapturingTime().getTime()));
 
+        TagView tags = (TagView)findViewById(R.id.tagview_momentview_tags);
+        tags.removeAll();
+        Set<String> setOfTags = moment.getTags();
+        List<Tag> listOfTags = new ArrayList<>();
+        for (String tagText : setOfTags) {
+            Tag tag = new Tag(tagText);
+            tag.isDeletable = false;
+            tag.layoutColorPress = tag.layoutColor;
+            listOfTags.add(tag);
+        }
+        tags.addTags(listOfTags);
         //TODO: displaying media content
     }
 

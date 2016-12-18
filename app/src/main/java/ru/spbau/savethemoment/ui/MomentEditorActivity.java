@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,15 +30,22 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.cunoraz.tagview.Tag;
+import com.cunoraz.tagview.TagView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Set;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
+
+import static ru.spbau.savethemoment.R.string.alertdialog_tags_delete_text;
 
 public class MomentEditorActivity extends AppCompatActivity {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
@@ -48,6 +56,7 @@ public class MomentEditorActivity extends AppCompatActivity {
     private Moment moment;
     private EditText title;
     private EditText description;
+    private EditText enterTag;
     private TextView date;
     private TextView time;
     private TextView location;
@@ -56,6 +65,7 @@ public class MomentEditorActivity extends AppCompatActivity {
     private Button editLocation;
     private Button addPicture;
     private LinearLayout layoutMedia;
+    private TagView tags;
     private Context context;
     private boolean startedWithMoment;
 
@@ -65,6 +75,7 @@ public class MomentEditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momenteditor);
+
         context = this;
         mediaViewGroup = (ViewGroup) findViewById(R.id.linearlayout_momenteditor_media);
         momentManager = new MomentManager(this);
@@ -83,6 +94,7 @@ public class MomentEditorActivity extends AppCompatActivity {
         initDescription();
         initDateAndTime();
         initLocation();
+        initTags();
         initMedia();
         //TODO: edit media content
     }
@@ -251,6 +263,80 @@ public class MomentEditorActivity extends AppCompatActivity {
                 startActivityForResult(intent, CHOOSE_LOCATION_REQUEST_CODE);
             }
         });
+    }
+
+    private void initTags() {
+        tags = (TagView)findViewById(R.id.tagview_momenteditor_tags);
+        displayTags();
+
+        enterTag = (EditText) findViewById(R.id.edittext_momenteditor_tags_add);
+        enterTag.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    addTag();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void displayTags() {
+        tags.removeAll();
+        Set<String> setOfTags = moment.getTags();
+        List<Tag> listOfTags = new ArrayList<>();
+        for (String tagText : setOfTags) {
+            listOfTags.add(tagFromString(tagText));
+        }
+        tags.addTags(listOfTags);
+        tags.setOnTagClickListener(new TagView.OnTagClickListener() {
+            @Override
+            public void onTagClick(final Tag tag, final int i) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                alert.setTitle(R.string.alertdialog_tags_delete_title);
+                alert.setMessage(getResources().getString(alertdialog_tags_delete_text) +
+                        " \"" +
+                        tag.text +
+                        "\"?");
+                alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeTag(tag, i);
+                        dialog.dismiss();
+                    }
+                });
+                alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+            }
+        });
+    }
+
+    private void addTag() {
+        String tagText = enterTag.getText().toString();
+        moment.addTag(tagText);
+        enterTag.setText("");
+        tags.addTag(tagFromString(tagText));
+    }
+
+    private void removeTag(Tag tag, int i) {
+        tags.remove(i);
+        moment.deleteTag(tag.text);
+    }
+
+    private Tag tagFromString(String tagText) {
+        Tag tag = new Tag(tagText);
+        tag.isDeletable = true;
+        return tag;
     }
 
     private void initMedia() {
