@@ -46,6 +46,7 @@ import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.momentmanager.MomentManager;
 
 import static ru.spbau.savethemoment.R.string.alertdialog_tags_delete_text;
+import static ru.spbau.savethemoment.R.string.error_title_required;
 
 public class MomentEditorActivity extends AppCompatActivity {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
@@ -96,7 +97,6 @@ public class MomentEditorActivity extends AppCompatActivity {
         initLocation();
         initTags();
         initMedia();
-        //TODO: edit media content
     }
 
     @Override
@@ -152,6 +152,7 @@ public class MomentEditorActivity extends AppCompatActivity {
             try {
                 InputStream inputStream = context.getContentResolver().openInputStream(data.getData());
                 addPictureToLayout(BitmapFactory.decodeStream(inputStream));
+                //TODO : save changes in Drive and DB
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -164,7 +165,7 @@ public class MomentEditorActivity extends AppCompatActivity {
 
     void setErrorOnTitle() {
         if (checkIfTitleEmpty()) {
-            title.setError("Title is required");
+            title.setError(getResources().getString(error_title_required));
         } else {
             title.setError(null);
         }
@@ -283,6 +284,37 @@ public class MomentEditorActivity extends AppCompatActivity {
         });
     }
 
+    private void initMedia() {
+        layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momenteditor_media);
+
+        addPicture = (Button) findViewById(R.id.button_momenteditor_addpicture);
+        addPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("image/*");
+                startActivityForResult(pickIntent, CHOOSE_PICTURE_REQUEST_CODE);
+            }
+        });
+
+        //TODO: add audio and video
+    }
+
+    private void saveTextChanges() {
+        moment.setTitle(title.getText().toString());
+        moment.setDescription(description.getText().toString());
+    }
+
+    private void dateChanged(int year, int month, int day, SimpleDateFormat dateFormat) {
+        moment.setCapturingDate(year, month, day);
+        date.setText(dateFormat.format(moment.getCapturingTime().getTime()));
+    }
+
+    private void timeChanged(int hour, int minute, SimpleDateFormat timeFormat) {
+        moment.setCapturingTime(hour, minute);
+        time.setText(timeFormat.format(moment.getCapturingTime().getTime()));
+    }
+
     private void displayTags() {
         tags.removeAll();
         Set<String> setOfTags = moment.getTags();
@@ -339,48 +371,19 @@ public class MomentEditorActivity extends AppCompatActivity {
         return tag;
     }
 
-    private void initMedia() {
-        layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momenteditor_media);
-
-        addPicture = (Button) findViewById(R.id.button_momenteditor_addpicture);
-        addPicture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                pickIntent.setType("image/*");
-                startActivityForResult(pickIntent, CHOOSE_PICTURE_REQUEST_CODE);
-            }
-        });
-
-    }
-
-    private void saveTextChanges() {
-        moment.setTitle(title.getText().toString());
-        moment.setDescription(description.getText().toString());
-    }
-
-    private void dateChanged(int year, int month, int day, SimpleDateFormat dateFormat) {
-        moment.setCapturingDate(year, month, day);
-        date.setText(dateFormat.format(moment.getCapturingTime().getTime()));
-    }
-
-    private void timeChanged(int hour, int minute, SimpleDateFormat timeFormat) {
-        moment.setCapturingTime(hour, minute);
-        time.setText(timeFormat.format(moment.getCapturingTime().getTime()));
-    }
-
     private void addPictureToLayout(Bitmap bitmap) {
         final View pictureItem = LayoutInflater.from(context).inflate(
                 R.layout.momenteditor_picture_item, mediaViewGroup, false);
         ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
-        image.setImageBitmap(bitmap);
+        image.setImageBitmap(getResizedBitmap(bitmap, layoutMedia.getWidth()));
+
         pictureItem.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                alert.setTitle("Delete picture");
-                alert.setMessage("Are you sure you want to delete picture?");
-                alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                alert.setTitle(R.string.alertdialog_image_delete_title);
+                alert.setMessage(R.string.alertdialog_image_delete_text);
+                alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -388,7 +391,7 @@ public class MomentEditorActivity extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 });
-                alert.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -401,6 +404,21 @@ public class MomentEditorActivity extends AppCompatActivity {
             }
         });
         layoutMedia.addView(pictureItem);
+    }
+
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float)height;
+        if (bitmapRatio > 0) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
 }
