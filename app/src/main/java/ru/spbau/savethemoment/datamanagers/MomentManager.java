@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.util.Log;
 
-import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveId;
 
 import java.util.ArrayList;
@@ -66,6 +66,7 @@ public class MomentManager {
             + "foreign key(" + MEDIA_MOMENT_ID
             + ") references " + MOMENTS_TABLE + "(" + MOMENT_ID + ") on delete cascade"
             + ");";
+    public static final String TAG = "MomentManager";
 
     private DBHelper dbHelper;
 
@@ -221,7 +222,9 @@ public class MomentManager {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MEDIA_MOMENT_ID, momentId.toString());
         contentValues.put(MEDIA_DRIVE_ID, driveId.encodeToString());
+        Log.d(TAG, "before inserting media content");
         database.insert(MEDIA_TABLE, null, contentValues);
+        Log.d(TAG, "after inserting media content");
     }
 
     public void deleteMediaContent(UUID momentId, DriveId driveId) {

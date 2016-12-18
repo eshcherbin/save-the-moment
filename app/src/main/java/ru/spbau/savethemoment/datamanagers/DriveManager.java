@@ -2,7 +2,6 @@ package ru.spbau.savethemoment.datamanagers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -41,19 +40,21 @@ public class DriveManager {
                 .await().getMetadataBuffer();
         DriveFolder momentFolder;
         if (buffer.getCount() == 0) {
-                momentFolder = appFolder.createFolder(googleApiClient,
-                        new MetadataChangeSet.Builder().setTitle(momentId.toString()).build())
-                        .await().getDriveFolder();
+            momentFolder = appFolder.createFolder(googleApiClient,
+                    new MetadataChangeSet.Builder().setTitle(momentId.toString()).build())
+                    .await().getDriveFolder();
+            if (momentFolder == null) {
+                Log.e(TAG, "Could not create moment folder");
+                return;
+            }
         } else {
             momentFolder = buffer.get(0).getDriveId().asDriveFolder();
         }
-        if (momentFolder == null) {
-            Log.e(TAG, "Could not create moment folder");
-            return;
-        }
+        buffer.release();
         String fileTitle = UUID.randomUUID().toString();
-        momentFolder.createFile(googleApiClient, new MetadataChangeSet.Builder().setTitle(fileTitle).build(), contents)
-                .await();
+        DriveFile newFile = momentFolder.createFile(googleApiClient, new MetadataChangeSet.Builder().setTitle(fileTitle).build(), contents)
+                .await().getDriveFile();
+        newFile.addChangeSubscription(googleApiClient);
     }
 
     public static void deleteMomentFolder(GoogleApiClient googleApiClient, UUID momentId) {
@@ -66,6 +67,7 @@ public class DriveManager {
         if (buffer.getCount() > 0) {
             buffer.get(0).getDriveId().asDriveFile().delete(googleApiClient);
         }
+        buffer.release();
     }
 
     public static void deleteMediaContentFile(GoogleApiClient googleApiClient, DriveId driveId) {
@@ -74,15 +76,14 @@ public class DriveManager {
 
     public static class UploadMediaTask extends ApiClientAsyncTask<Void, Void, Void> {
         public static final int COMPRESSION_QUALITY = 50;
+        public static final String TAG = "UploadMediaTask";
         private UUID momentId;
         private Bitmap bitmap;
-        private Context context;
 
         public UploadMediaTask(Context context,
                                UUID momentId,
                                Bitmap bitmap) {
             super(context);
-            this.context = context;
             this.momentId = momentId;
             this.bitmap = bitmap;
         }
@@ -90,15 +91,15 @@ public class DriveManager {
         @Override
         protected Void doInBackgroundConnected(Void... params) {
             GoogleApiClient googleApiClient = getGoogleApiClient();
-            Log.d("UploadMediaTask", "started");
-            Log.d("UploadMediaTask", "googleApiClient.isConnected() == " + googleApiClient.isConnected());
+            Log.d(TAG, "started");
+            Log.d(TAG, "googleApiClient.isConnected() == " + googleApiClient.isConnected());
             DriveContents driveContents = Drive.DriveApi.newDriveContents(googleApiClient).await().getDriveContents();
-            Log.d("UploadMediaTask", "got driveContents");
+            Log.d(TAG, "got driveContents");
             bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY,
                     new BufferedOutputStream(driveContents.getOutputStream()));
-            Log.d("UploadMediaTask", "compressed bitmap");
+            Log.d(TAG, "compressed bitmap");
             DriveManager.createMediaContentFile(googleApiClient, momentId, driveContents);
-            Log.d("UploadMediaTask", "completed");
+            Log.d(TAG, "completed");
             return null;
         }
     }
