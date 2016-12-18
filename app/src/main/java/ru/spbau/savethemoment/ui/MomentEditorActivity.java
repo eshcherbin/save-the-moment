@@ -110,7 +110,8 @@ public class MomentEditorActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.menuitem_momenteditor_save) {
             if (checkIfTitleEmpty()) {
-                Toast.makeText(context, "Title is required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, getResources().getString(error_title_required),
+                        Toast.LENGTH_SHORT).show();
                 return true;
             }
             saveTextChanges();
@@ -291,6 +292,7 @@ public class MomentEditorActivity extends AppCompatActivity {
         addPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO: take a picture
                 Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 pickIntent.setType("image/*");
                 startActivityForResult(pickIntent, CHOOSE_PICTURE_REQUEST_CODE);
@@ -387,6 +389,7 @@ public class MomentEditorActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        //TODO: save changes in Drive and DB
                         layoutMedia.removeView(pictureItem);
                         dialog.dismiss();
                     }
