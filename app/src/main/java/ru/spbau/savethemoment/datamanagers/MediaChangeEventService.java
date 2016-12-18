@@ -21,22 +21,12 @@ public class MediaChangeEventService extends DriveEventService {
     public static final String TAG = "MediaChangeEventService";
 
     @Override
-    public void onCreate() {
-        Log.d(TAG, "Created service");
-    }
-
-    @Override
-    public synchronized void onDestroy() {
-        Log.e(TAG, "Destroyed service");
-    }
-
-    @Override
     public void onChange(ChangeEvent changeEvent) {
         if (changeEvent.hasBeenDeleted()) {
             Log.d(TAG, "Oh, yet another file perished...");
             return;
         }
-        Log.e(TAG, "Change event on board!");
+        Log.d(TAG, "Change event on board!");
         DriveId driveId = changeEvent.getDriveId();
         final CountDownLatch latch = new CountDownLatch(1);
         GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)

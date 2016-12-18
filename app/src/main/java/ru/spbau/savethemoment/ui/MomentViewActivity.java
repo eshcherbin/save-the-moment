@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
+import ru.spbau.savethemoment.datamanagers.DriveManager;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
 
 public class MomentViewActivity extends AppCompatActivity
@@ -40,6 +42,7 @@ public class MomentViewActivity extends AppCompatActivity
     private static final int LOADER_ID = 0;
     private static final int EDIT_MOMENT = 1;
     private static final int RESOLVE_CONNECTION_REQUEST_CODE = 2;
+    public static final String TAG = "MomentViewActivity";
 
     private Toolbar toolbar;
     private UUID momentId;
@@ -69,11 +72,17 @@ public class MomentViewActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
 
         momentId = (UUID) getIntent().getSerializableExtra(MOMENT_ID);
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.d(TAG, "onConnected");
         if (!hasDownloadedMedia && mediaContentDriveIds != null) {
             hasDownloadedMedia = true;
             for (DriveId driveId : mediaContentDriveIds) {
@@ -146,7 +155,7 @@ public class MomentViewActivity extends AppCompatActivity
         }
         if (id == R.id.menuitem_momentview_delete) {
             momentManager.deleteMomentById(moment.getId());
-//            DriveManager.deleteMomentFolder(googleApiClient, momentId);
+            new DriveManager.DeleteMomentFolderTask(getApplicationContext(), momentId).execute();
             finish();
         }
 
