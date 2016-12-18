@@ -19,7 +19,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,7 +40,6 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -155,7 +153,8 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 if (googleApiClient.isConnected()) {
                     for (DriveId driveId : initialMediaContentDriveIds) {
                         if (!mediaNotToDelete.contains(driveId)) {
-                            //TODO: delete media
+                            momentManager.deleteMediaContent(moment.getId(), driveId);
+                            DriveManager.deleteMediaContentFile(googleApiClient, driveId);
                         }
                     }
                     for (Bitmap bitmap : mediaToAdd) {
