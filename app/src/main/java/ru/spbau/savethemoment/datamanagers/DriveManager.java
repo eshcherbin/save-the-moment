@@ -24,14 +24,15 @@ import java.util.UUID;
 
 public class DriveManager {
 
+    public static final String TAG = "DriveManager";
+
     public static void loadFileContents(GoogleApiClient googleApiClient, DriveId driveId,
                                         ResultCallback<DriveApi.DriveContentsResult> resultCallback) {
         DriveFile driveFile = driveId.asDriveFile();
         driveFile.open(googleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(resultCallback);
     }
 
-    public static void createMediaContentFile(GoogleApiClient googleApiClient, UUID momentId, DriveContents contents,
-                                              ResultCallback<DriveFolder.DriveFileResult> resultCallback) {
+    public static void createMediaContentFile(GoogleApiClient googleApiClient, UUID momentId, DriveContents contents) {
         DriveFolder appFolder = Drive.DriveApi.getAppFolder(googleApiClient);
         MetadataBuffer buffer = appFolder.queryChildren(googleApiClient,
                 new Query.Builder().addFilter(Filters.eq(SearchableField.TITLE,
@@ -40,15 +41,19 @@ public class DriveManager {
                 .await().getMetadataBuffer();
         DriveFolder momentFolder;
         if (buffer.getCount() == 0) {
-            momentFolder = appFolder.createFolder(googleApiClient,
-                    new MetadataChangeSet.Builder().setTitle(momentId.toString()).build())
-                    .await().getDriveFolder();
+                momentFolder = appFolder.createFolder(googleApiClient,
+                        new MetadataChangeSet.Builder().setTitle(momentId.toString()).build())
+                        .await().getDriveFolder();
         } else {
             momentFolder = buffer.get(0).getDriveId().asDriveFolder();
         }
+        if (momentFolder == null) {
+            Log.e(TAG, "Could not create moment folder");
+            return;
+        }
         String fileTitle = UUID.randomUUID().toString();
         momentFolder.createFile(googleApiClient, new MetadataChangeSet.Builder().setTitle(fileTitle).build(), contents)
-                .setResultCallback(resultCallback);
+                .await();
     }
 
     public static void deleteMomentFolder(GoogleApiClient googleApiClient, UUID momentId) {
@@ -92,16 +97,7 @@ public class DriveManager {
             bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY,
                     new BufferedOutputStream(driveContents.getOutputStream()));
             Log.d("UploadMediaTask", "compressed bitmap");
-            DriveManager.createMediaContentFile(googleApiClient, momentId, driveContents,
-                    new ResultCallback<DriveFolder.DriveFileResult>() {
-                        @Override
-                        public void onResult(@NonNull DriveFolder.DriveFileResult driveFileResult) {
-                            MomentManager momentManager = new MomentManager(context);
-                            momentManager.insertMediaContent(momentId,
-                                    driveFileResult.getDriveFile().getDriveId());
-                            Log.d("ResultCallback", "completed");
-                        }
-                    });
+            DriveManager.createMediaContentFile(googleApiClient, momentId, driveContents);
             Log.d("UploadMediaTask", "completed");
             return null;
         }

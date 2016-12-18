@@ -136,14 +136,14 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
             Set<Bitmap> mediaToAdd = new HashSet<>();
             Set<DriveId> mediaNotToDelete = new HashSet<>();
             for (int i = 0; i < layoutMedia.getChildCount(); i++) {
+                View pictureItem = layoutMedia.getChildAt(i);
                 ImageView imageView;
                 try {
-                    View pictureItem = layoutMedia.getChildAt(i);
                     imageView = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
                 } catch (ClassCastException e) {
                     continue;
                 }
-                DriveId driveId = (DriveId) imageView.getTag();
+                DriveId driveId = (DriveId) pictureItem.getTag();
                 if (driveId != null) {
                     mediaNotToDelete.add(driveId);
                 } else {
@@ -155,8 +155,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 if (googleApiClient.isConnected()) {
                     for (DriveId driveId : initialMediaContentDriveIds) {
                         if (!mediaNotToDelete.contains(driveId)) {
-                            DriveManager.deleteMediaContentFile(googleApiClient, driveId);
-                            momentManager.deleteMediaContent(moment.getId(), driveId);
+                            //TODO: delete media
                         }
                     }
                     for (Bitmap bitmap : mediaToAdd) {
@@ -164,7 +163,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                     }
                 }
                 Intent intent = new Intent();
-//                intent.putExtra("Moment", moment);
+                intent.putExtra("Moment", moment);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             } else {
