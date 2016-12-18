@@ -28,6 +28,7 @@
     <string name="momentview_no_location_specified">No location specified for this moment</string>
     <string name="menuitem_list_of_moments_show_on_map_text">Show on map</string>
     <string name="menuitem_momentview_delete_text">Delete</string>
+    <string name="button_momenteditor_addpicture_text">Add picture</string>
     <string name="alertdialog_yes">YES</string>
     <string name="alertdialog_no">NO</string>
     <string name="alertdialog_ok">Ok</string>
