@@ -3,8 +3,10 @@ package ru.spbau.savethemoment.ui;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.Loader;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ import java.util.UUID;
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.datamanagers.DriveManager;
+import ru.spbau.savethemoment.datamanagers.MediaChangeEventService;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
 
 public class MomentViewActivity extends AppCompatActivity
@@ -50,6 +53,7 @@ public class MomentViewActivity extends AppCompatActivity
     private List<DriveId> mediaContentDriveIds;
     private Menu menu;
     private MomentManager momentManager;
+    private BroadcastReceiver mediaChangeReceiver;
 
     private GoogleApiClient googleApiClient;
     private boolean hasDownloadedMedia;
@@ -68,10 +72,25 @@ public class MomentViewActivity extends AppCompatActivity
                 .addScope(Drive.SCOPE_APPFOLDER)
                 .build();
         hasDownloadedMedia = false;
+        mediaChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                DriveId driveId = intent.getParcelableExtra(MediaChangeEventService.DRIVE_ID);
+                Toast.makeText(MomentViewActivity.this, driveId.encodeToString(), Toast.LENGTH_LONG).show();
+                getLoaderManager().restartLoader(LOADER_ID, null, MomentViewActivity.this);
+            }
+        };
+        registerReceiver(mediaChangeReceiver, new IntentFilter(MediaChangeEventService.ACTION));
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
 
         momentId = (UUID) getIntent().getSerializableExtra(MOMENT_ID);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mediaChangeReceiver);
     }
 
     @Override
