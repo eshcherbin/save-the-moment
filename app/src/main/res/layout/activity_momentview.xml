@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_moment_view"
     android:layout_width="match_parent"
@@ -7,64 +7,76 @@
     tools:context="ru.spbau.savethemoment.ui.MomentViewActivity"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/tool_bar_momentview"
-        layout="@layout/tool_bar"
-        ></include>
-
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <TextView
-            android:text="@string/textview_momentview_location_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textview_momentview_location"
-            android:layout_weight="1" />
+        <include
+            android:id="@+id/tool_bar_momentview"
+            layout="@layout/tool_bar"
+            ></include>
 
-        <TextView
-            android:text="@string/textview_momentview_capturingtime_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textview_momentview_capturingtime"
-            android:layout_weight="1" />
-
-        <TextView
-            android:gravity="center"
-            android:text="@string/textview_momentview_title_text"
-            android:textSize="25sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textview_momentview_title"
-            android:layout_weight="1" />
-
-        <TextView
-            android:text="@string/textview_momentview_description_text"
-            android:textSize="20sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textview_momentview_description"
-            android:layout_weight="1" />
-
-        <com.cunoraz.tagview.TagView
-            xmlns:tagview="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/tagview_momentview_tags"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            tagview:lineMargin="5dp"
-            tagview:tagMargin="5dp"
-            tagview:textPaddingLeft="8dp"
-            tagview:textPaddingTop="5dp"
-            tagview:textPaddingRight="8dp"
-            tagview:textPaddingBottom="5dp" />
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
 
+            <TextView
+                android:text="@string/textview_momentview_location_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textview_momentview_location"
+                android:layout_weight="1" />
+
+            <TextView
+                android:text="@string/textview_momentview_capturingtime_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textview_momentview_capturingtime"
+                android:layout_weight="1" />
+
+            <TextView
+                android:gravity="center"
+                android:text="@string/textview_momentview_title_text"
+                android:textSize="25sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textview_momentview_title"
+                android:layout_weight="1" />
+
+            <TextView
+                android:text="@string/textview_momentview_description_text"
+                android:textSize="20sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textview_momentview_description"
+                android:layout_weight="1" />
+
+            <com.cunoraz.tagview.TagView
+                xmlns:tagview="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/tagview_momentview_tags"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                tagview:lineMargin="5dp"
+                tagview:tagMargin="5dp"
+                tagview:textPaddingLeft="8dp"
+                tagview:textPaddingTop="5dp"
+                tagview:textPaddingRight="8dp"
+                tagview:textPaddingBottom="5dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearlayout_momentview_media"
+                android:orientation="vertical"/>
+
+        </LinearLayout>
     </LinearLayout>
 
-</LinearLayout>
+</ScrollView>
