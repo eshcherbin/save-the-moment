@@ -19,7 +19,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -41,7 +41,6 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
-import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -355,9 +354,10 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 R.layout.momenteditor_picture_item, mediaViewGroup, false);
         ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
         image.setImageBitmap(bitmap);
-        pictureItem.setOnLongClickListener(new View.OnLongClickListener() {
+        ImageButton button = (ImageButton) pictureItem.findViewById(R.id.imagebutton_momenteditor_picture_item);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(context);
                 alert.setTitle("Delete picture");
                 alert.setMessage("Are you sure you want to delete picture?");
@@ -378,7 +378,6 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 });
 
                 alert.show();
-                return true;
             }
         });
         pictureItem.setTag(driveId);

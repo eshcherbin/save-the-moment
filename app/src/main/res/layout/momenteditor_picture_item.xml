@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -14,4 +14,13 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"/>
-</LinearLayout>
+    <ImageButton android:id="@+id/imagebutton_momenteditor_picture_item"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="5dp"
+        android:layout_alignParentRight="true"
+        android:background="@null"
+        android:src="@mipmap/ic_close_cross_button"/>
+</RelativeLayout>
