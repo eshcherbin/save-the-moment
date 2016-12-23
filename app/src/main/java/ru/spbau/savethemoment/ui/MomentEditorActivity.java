@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -379,9 +380,10 @@ public class MomentEditorActivity extends AppCompatActivity {
         ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
         image.setImageBitmap(getResizedBitmap(bitmap, layoutMedia.getWidth()));
 
-        pictureItem.setOnLongClickListener(new View.OnLongClickListener() {
+        ImageButton button = (ImageButton) pictureItem.findViewById(R.id.imagebutton_momenteditor_picture_item);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(context);
                 alert.setTitle(R.string.alertdialog_image_delete_title);
                 alert.setMessage(R.string.alertdialog_image_delete_text);
@@ -403,7 +405,6 @@ public class MomentEditorActivity extends AppCompatActivity {
                 });
 
                 alert.show();
-                return true;
             }
         });
         layoutMedia.addView(pictureItem);
