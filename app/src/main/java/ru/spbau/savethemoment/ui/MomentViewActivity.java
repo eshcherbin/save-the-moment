@@ -4,16 +4,23 @@ import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,8 +31,13 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveId;
 
 import java.io.Serializable;
+import com.cunoraz.tagview.Tag;
+import com.cunoraz.tagview.TagView;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
@@ -47,6 +59,9 @@ public class MomentViewActivity extends AppCompatActivity
     private List<DriveId> mediaContentDriveIds;
     private Menu menu;
     private MomentManager momentManager;
+    private LinearLayout layoutMedia;
+    private Context context;
+    private ViewGroup mediaViewGroup;
 
     private GoogleApiClient googleApiClient;
     private boolean hasDownloadedMedia;
@@ -56,6 +71,8 @@ public class MomentViewActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momentview);
 
+        context = this;
+        mediaViewGroup = (ViewGroup) findViewById(R.id.linearlayout_momentview_media);
         momentManager = new MomentManager(this);
 
         googleApiClient = new GoogleApiClient.Builder(this)
@@ -145,9 +162,27 @@ public class MomentViewActivity extends AppCompatActivity
             return true;
         }
         if (id == R.id.menuitem_momentview_delete) {
-            momentManager.deleteMomentById(moment.getId());
-//            DriveManager.deleteMomentFolder(googleApiClient, momentId);
-            finish();
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle(R.string.alertdialog_delete_moment_title);
+            alert.setMessage(R.string.alertdialog_delete_moment_text);
+            alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    momentManager.deleteMomentById(moment.getId());
+            //      DriveManager.deleteMomentFolder(googleApiClient, momentId);
+                    finish();
+                    dialog.dismiss();
+                }
+            });
+            alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
         }
 
         return false;
@@ -187,6 +222,22 @@ public class MomentViewActivity extends AppCompatActivity
         TextView capturingTime = (TextView) findViewById(R.id.textview_momentview_capturingtime);
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE dd MMM yyyy hh:mm");
         capturingTime.setText(dateFormat.format(moment.getCapturingTime().getTime()));
+
+        TagView tags = (TagView) findViewById(R.id.tagview_momentview_tags);
+        tags.removeAll();
+        Set<String> setOfTags = moment.getTags();
+        List<Tag> listOfTags = new ArrayList<>();
+        for (String tagText : setOfTags) {
+            Tag tag = new Tag(tagText);
+            tag.isDeletable = false;
+            tag.layoutColorPress = tag.layoutColor;
+            listOfTags.add(tag);
+        }
+        tags.addTags(listOfTags);
+
+        layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momentview_media);
+        //call addPictureToLayout to add pictures
+        //TODO: displaying media content
     }
 
     public static class MomentWithMediaContent {
@@ -233,5 +284,16 @@ public class MomentViewActivity extends AppCompatActivity
             mediaContentDriveIds = momentManager.getMediaContentListByMomentId(momentId);
             return new MomentWithMediaContent(moment, mediaContentDriveIds);
         }
+    }
+
+    /**
+     * Prepared to load images from drive
+     */
+    private void addPictureToLayout() {
+        final View pictureItem = LayoutInflater.from(context).inflate(
+                R.layout.momentview_picture_item, mediaViewGroup, false);
+        ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momentview_picture_item);
+        //load image
+        layoutMedia.addView(pictureItem);
     }
 }

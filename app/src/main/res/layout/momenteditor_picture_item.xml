@@ -22,5 +22,5 @@
         android:layout_marginRight="5dp"
         android:layout_alignParentRight="true"
         android:background="@null"
-        android:src="@mipmap/ic_close_cross_button"/>
+        android:src="@mipmap/ic_delete_sign"/>
 </RelativeLayout>

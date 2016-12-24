@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,19 +43,25 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveId;
+import com.cunoraz.tagview.Tag;
+import com.cunoraz.tagview.TagView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.datamanagers.DriveManager;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
+
+import static ru.spbau.savethemoment.R.string.alertdialog_tags_delete_text;
+import static ru.spbau.savethemoment.R.string.error_title_required;
 
 public class MomentEditorActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
@@ -67,6 +74,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
     private List<DriveId> initialMediaContentDriveIds;
     private EditText title;
     private EditText description;
+    private EditText enterTag;
     private TextView date;
     private TextView time;
     private TextView location;
@@ -75,6 +83,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
     private Button editLocation;
     private Button addPicture;
     private LinearLayout layoutMedia;
+    private TagView tags;
     private Context context;
     private boolean startedWithMoment;
     private boolean hasDownloadedMedia;
@@ -86,6 +95,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momenteditor);
+
         context = this;
         mediaViewGroup = (ViewGroup) findViewById(R.id.linearlayout_momenteditor_media);
         momentManager = new MomentManager(this);
@@ -113,8 +123,8 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         initDescription();
         initDateAndTime();
         initLocation();
+        initTags();
         initMedia();
-        //TODO: edit media content
     }
 
     @Override
@@ -128,7 +138,8 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         int id = item.getItemId();
         if (id == R.id.menuitem_momenteditor_save) {
             if (checkIfTitleEmpty()) {
-                Toast.makeText(context, "Title is required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, getResources().getString(error_title_required),
+                        Toast.LENGTH_SHORT).show();
                 return true;
             }
             saveTextChanges();
@@ -219,7 +230,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
 
     void setErrorOnTitle() {
         if (checkIfTitleEmpty()) {
-            title.setError("Title is required");
+            title.setError(getResources().getString(error_title_required));
         } else {
             title.setError(null);
         }
@@ -320,6 +331,24 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         });
     }
 
+    private void initTags() {
+        tags = (TagView)findViewById(R.id.tagview_momenteditor_tags);
+        displayTags();
+
+        enterTag = (EditText) findViewById(R.id.edittext_momenteditor_tags_add);
+        enterTag.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    addTag();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
     private void initMedia() {
         layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momenteditor_media);
 
@@ -327,11 +356,14 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         addPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO: take a picture
                 Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 pickIntent.setType("image/*");
                 startActivityForResult(pickIntent, CHOOSE_PICTURE_REQUEST_CODE);
             }
         });
+
+        //TODO: add audio and video
     }
 
     private void saveTextChanges() {
@@ -349,19 +381,76 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         time.setText(timeFormat.format(moment.getCapturingTime().getTime()));
     }
 
+    private void displayTags() {
+        tags.removeAll();
+        Set<String> setOfTags = moment.getTags();
+        List<Tag> listOfTags = new ArrayList<>();
+        for (String tagText : setOfTags) {
+            listOfTags.add(tagFromString(tagText));
+        }
+        tags.addTags(listOfTags);
+        tags.setOnTagClickListener(new TagView.OnTagClickListener() {
+            @Override
+            public void onTagClick(final Tag tag, final int i) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                alert.setTitle(R.string.alertdialog_tags_delete_title);
+                alert.setMessage(getResources().getString(alertdialog_tags_delete_text) +
+                        " \"" +
+                        tag.text +
+                        "\"?");
+                alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeTag(tag, i);
+                        dialog.dismiss();
+                    }
+                });
+                alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+            }
+        });
+    }
+
+    private void addTag() {
+        String tagText = enterTag.getText().toString();
+        moment.addTag(tagText);
+        enterTag.setText("");
+        tags.addTag(tagFromString(tagText));
+    }
+
+    private void removeTag(Tag tag, int i) {
+        tags.remove(i);
+        moment.deleteTag(tag.text);
+    }
+
+    private Tag tagFromString(String tagText) {
+        Tag tag = new Tag(tagText);
+        tag.isDeletable = true;
+        return tag;
+    }
+
     private void addPictureToLayout(Bitmap bitmap, DriveId driveId) {
         final View pictureItem = LayoutInflater.from(context).inflate(
                 R.layout.momenteditor_picture_item, mediaViewGroup, false);
         ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
-        image.setImageBitmap(bitmap);
+        image.setImageBitmap(getResizedBitmap(bitmap, layoutMedia.getWidth()));
+
         ImageButton button = (ImageButton) pictureItem.findViewById(R.id.imagebutton_momenteditor_picture_item);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                alert.setTitle("Delete picture");
-                alert.setMessage("Are you sure you want to delete picture?");
-                alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                alert.setTitle(R.string.alertdialog_image_delete_title);
+                alert.setMessage(R.string.alertdialog_image_delete_text);
+                alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -369,7 +458,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                         dialog.dismiss();
                     }
                 });
-                alert.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -384,6 +473,20 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         layoutMedia.addView(pictureItem);
     }
 
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float)height;
+        if (bitmapRatio > 0) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (!hasDownloadedMedia && initialMediaContentDriveIds != null) {
@@ -419,4 +522,6 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
             GoogleApiAvailability.getInstance().getErrorDialog(this, connectionResult.getErrorCode(), 0);
         }
     }
+}
+
 }

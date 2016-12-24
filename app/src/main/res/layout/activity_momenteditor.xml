@@ -34,6 +34,29 @@
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:paddingTop="@dimen/activity_vertical_margin">
 
+            <com.cunoraz.tagview.TagView
+                xmlns:tagview="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/tagview_momenteditor_tags"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                tagview:lineMargin="5dp"
+                tagview:tagMargin="5dp"
+                tagview:textPaddingLeft="8dp"
+                tagview:textPaddingTop="5dp"
+                tagview:textPaddingRight="8dp"
+                tagview:textPaddingBottom="5dp" />
+
+            <EditText
+                android:hint="@string/edittext_momenteditor_tags_add_text"
+                android:textSize="18sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/edittext_momenteditor_tags_add"
+                android:inputType="text"
+                android:layout_weight="1"
+                android:nextFocusDown="@id/edittext_momenteditor_tags_add"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,7 +123,7 @@
                 android:id="@+id/button_momenteditor_addpicture"
                 android:text="@string/button_momenteditor_addpicture_text"/>
 
-          <LinearLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/linearlayout_momenteditor_media"
@@ -108,7 +131,6 @@
 
         </LinearLayout>
 
-
-
     </LinearLayout>
+
 </ScrollView>
