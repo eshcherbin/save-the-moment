@@ -75,7 +75,7 @@ public class DriveManager {
     }
 
     public static class UploadMediaTask extends ApiClientAsyncTask<Void, Void, Void> {
-        public static final int COMPRESSION_QUALITY = 50;
+        public static final int COMPRESSION_QUALITY = 100;
         public static final String TAG = "UploadMediaTask";
         private UUID momentId;
         private Bitmap bitmap;

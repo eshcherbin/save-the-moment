@@ -10,14 +10,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.Loader;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,16 +29,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cunoraz.tagview.Tag;
+import com.cunoraz.tagview.TagView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
+import com.google.android.gms.drive.DriveApi;
+import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveId;
 
 import java.io.Serializable;
-import com.cunoraz.tagview.Tag;
-import com.cunoraz.tagview.TagView;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,8 +97,8 @@ public class MomentViewActivity extends AppCompatActivity
             @Override
             public void onReceive(Context context, Intent intent) {
                 DriveId driveId = intent.getParcelableExtra(MediaChangeEventService.DRIVE_ID);
-                Toast.makeText(MomentViewActivity.this, driveId.encodeToString(), Toast.LENGTH_LONG).show();
                 getLoaderManager().restartLoader(LOADER_ID, null, MomentViewActivity.this);
+                displayMedia(driveId);
             }
         };
         registerReceiver(mediaChangeReceiver, new IntentFilter(MediaChangeEventService.ACTION));
@@ -122,9 +126,20 @@ public class MomentViewActivity extends AppCompatActivity
         if (!hasDownloadedMedia && mediaContentDriveIds != null) {
             hasDownloadedMedia = true;
             for (DriveId driveId : mediaContentDriveIds) {
-                //TODO: display media
+                displayMedia(driveId);
             }
         }
+    }
+
+    private void displayMedia(DriveId driveId) {
+        DriveManager.loadFileContents(googleApiClient, driveId,
+                new ResultCallback<DriveApi.DriveContentsResult>() {
+                    @Override
+                    public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
+                        DriveContents driveContents = driveContentsResult.getDriveContents();
+                        addPictureToLayout(BitmapFactory.decodeStream(driveContents.getInputStream()));
+                    }
+                });
     }
 
     @Override
@@ -265,8 +280,29 @@ public class MomentViewActivity extends AppCompatActivity
         tags.addTags(listOfTags);
 
         layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momentview_media);
-        //call addPictureToLayout to add pictures
-        //TODO: displaying media content
+    }
+
+    private void addPictureToLayout(Bitmap bitmap) {
+        final View pictureItem = LayoutInflater.from(context).inflate(
+                R.layout.momentview_picture_item, mediaViewGroup, false);
+        ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momentview_picture_item);
+        image.setImageBitmap(getResizedBitmap(bitmap, layoutMedia.getWidth()));
+        layoutMedia.addView(pictureItem);
+    }
+
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float)height;
+        if (bitmapRatio > 0) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
     public static class MomentWithMediaContent {
@@ -313,16 +349,5 @@ public class MomentViewActivity extends AppCompatActivity
             mediaContentDriveIds = momentManager.getMediaContentListByMomentId(momentId);
             return new MomentWithMediaContent(moment, mediaContentDriveIds);
         }
-    }
-
-    /**
-     * Prepared to load images from drive
-     */
-    private void addPictureToLayout() {
-        final View pictureItem = LayoutInflater.from(context).inflate(
-                R.layout.momentview_picture_item, mediaViewGroup, false);
-        ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momentview_picture_item);
-        //load image
-        layoutMedia.addView(pictureItem);
     }
 }
