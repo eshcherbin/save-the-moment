@@ -165,7 +165,8 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 if (googleApiClient.isConnected()) {
                     for (DriveId driveId : initialMediaContentDriveIds) {
                         if (!mediaNotToDelete.contains(driveId)) {
-                            //TODO: delete media
+                            momentManager.deleteMediaContent(moment.getId(), driveId);
+                            DriveManager.deleteMediaContentFile(googleApiClient, driveId);
                         }
                     }
                     for (Bitmap bitmap : mediaToAdd) {
@@ -487,6 +488,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if (!hasDownloadedMedia && initialMediaContentDriveIds != null) {

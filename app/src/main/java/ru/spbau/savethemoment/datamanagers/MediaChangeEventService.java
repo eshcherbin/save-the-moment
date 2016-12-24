@@ -1,5 +1,6 @@
 package ru.spbau.savethemoment.datamanagers;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -19,10 +20,13 @@ import java.util.concurrent.CountDownLatch;
 public class MediaChangeEventService extends DriveEventService {
 
     public static final String TAG = "MediaChangeEventService";
+    public static final String ACTION = "ru.spbau.savethemoment.MEDIA_ADDED";
+    public static final String DRIVE_ID = "DriveId";
 
     @Override
     public void onChange(ChangeEvent changeEvent) {
         if (changeEvent.hasBeenDeleted()) {
+            Log.d(TAG, "Oh, yet another file perished...");
             return;
         }
         Log.d(TAG, "Change event on board!");
@@ -66,6 +70,11 @@ public class MediaChangeEventService extends DriveEventService {
                 if (parentId != appFolder) {
                     MomentManager momentManager = new MomentManager(this);
                     momentManager.insertMediaContent(UUID.fromString(metadata.getTitle()), driveId);
+                    // send broadcast to let MomentViewActivity know that a new media should be added
+                    Intent intent = new Intent();
+                    intent.setAction(ACTION);
+                    intent.putExtra(DRIVE_ID, driveId);
+                    sendBroadcast(intent);
                 }
             }
             buffer.release();

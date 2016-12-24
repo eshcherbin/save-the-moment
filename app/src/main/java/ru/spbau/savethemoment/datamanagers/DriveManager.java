@@ -54,7 +54,7 @@ public class DriveManager {
         String fileTitle = UUID.randomUUID().toString();
         DriveFile newFile = momentFolder.createFile(googleApiClient, new MetadataChangeSet.Builder().setTitle(fileTitle).build(), contents)
                 .await().getDriveFile();
-        newFile.addChangeSubscription(googleApiClient);
+        newFile.addChangeSubscription(googleApiClient).await();
     }
 
     public static void deleteMomentFolder(GoogleApiClient googleApiClient, UUID momentId) {
@@ -65,7 +65,7 @@ public class DriveManager {
                         .build())
                 .await().getMetadataBuffer();
         if (buffer.getCount() > 0) {
-            buffer.get(0).getDriveId().asDriveFile().delete(googleApiClient);
+            buffer.get(0).getDriveId().asDriveFolder().delete(googleApiClient).await();
         }
         buffer.release();
     }
@@ -99,6 +99,26 @@ public class DriveManager {
                     new BufferedOutputStream(driveContents.getOutputStream()));
             Log.d(TAG, "compressed bitmap");
             DriveManager.createMediaContentFile(googleApiClient, momentId, driveContents);
+            Log.d(TAG, "completed");
+            return null;
+        }
+    }
+
+    public static class DeleteMomentFolderTask extends ApiClientAsyncTask<Void, Void, Void> {
+        public static final String TAG = "DeleteMomentFolderTask";
+        private UUID momentId;
+
+        public DeleteMomentFolderTask(Context context,
+                               UUID momentId) {
+            super(context);
+            this.momentId = momentId;
+        }
+
+        @Override
+        protected Void doInBackgroundConnected(Void... params) {
+            GoogleApiClient googleApiClient = getGoogleApiClient();
+            Log.d(TAG, "started deleting moment folder");
+            DriveManager.deleteMomentFolder(googleApiClient, momentId);
             Log.d(TAG, "completed");
             return null;
         }

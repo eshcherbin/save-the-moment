@@ -3,9 +3,11 @@ package ru.spbau.savethemoment.ui;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.Loader;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,6 +45,8 @@ import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
+import ru.spbau.savethemoment.datamanagers.DriveManager;
+import ru.spbau.savethemoment.datamanagers.MediaChangeEventService;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
 
 public class MomentViewActivity extends AppCompatActivity
@@ -52,6 +57,7 @@ public class MomentViewActivity extends AppCompatActivity
     private static final int LOADER_ID = 0;
     private static final int EDIT_MOMENT = 1;
     private static final int RESOLVE_CONNECTION_REQUEST_CODE = 2;
+    public static final String TAG = "MomentViewActivity";
 
     private Toolbar toolbar;
     private UUID momentId;
@@ -62,6 +68,7 @@ public class MomentViewActivity extends AppCompatActivity
     private LinearLayout layoutMedia;
     private Context context;
     private ViewGroup mediaViewGroup;
+    private BroadcastReceiver mediaChangeReceiver;
 
     private GoogleApiClient googleApiClient;
     private boolean hasDownloadedMedia;
@@ -82,15 +89,36 @@ public class MomentViewActivity extends AppCompatActivity
                 .addScope(Drive.SCOPE_APPFOLDER)
                 .build();
         hasDownloadedMedia = false;
+        mediaChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                DriveId driveId = intent.getParcelableExtra(MediaChangeEventService.DRIVE_ID);
+                Toast.makeText(MomentViewActivity.this, driveId.encodeToString(), Toast.LENGTH_LONG).show();
+                getLoaderManager().restartLoader(LOADER_ID, null, MomentViewActivity.this);
+            }
+        };
+        registerReceiver(mediaChangeReceiver, new IntentFilter(MediaChangeEventService.ACTION));
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
 
         momentId = (UUID) getIntent().getSerializableExtra(MOMENT_ID);
-        getLoaderManager().initLoader(LOADER_ID, null, this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mediaChangeReceiver);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getLoaderManager().restartLoader(LOADER_ID, null, this);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.d(TAG, "onConnected");
         if (!hasDownloadedMedia && mediaContentDriveIds != null) {
             hasDownloadedMedia = true;
             for (DriveId driveId : mediaContentDriveIds) {
@@ -162,6 +190,7 @@ public class MomentViewActivity extends AppCompatActivity
             return true;
         }
         if (id == R.id.menuitem_momentview_delete) {
+
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle(R.string.alertdialog_delete_moment_title);
             alert.setMessage(R.string.alertdialog_delete_moment_text);
@@ -170,7 +199,7 @@ public class MomentViewActivity extends AppCompatActivity
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     momentManager.deleteMomentById(moment.getId());
-            //      DriveManager.deleteMomentFolder(googleApiClient, momentId);
+                    new DriveManager.DeleteMomentFolderTask(getApplicationContext(), momentId).execute();
                     finish();
                     dialog.dismiss();
                 }
