@@ -65,7 +65,7 @@ public class MomentEditorActivity extends AppCompatActivity {
     private Button editDate;
     private Button editTime;
     private Button editLocation;
-    private Button addPicture;
+    private ImageButton addPicture;
     private LinearLayout layoutMedia;
     private TagView tags;
     private Context context;
@@ -289,7 +289,7 @@ public class MomentEditorActivity extends AppCompatActivity {
     private void initMedia() {
         layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momenteditor_media);
 
-        addPicture = (Button) findViewById(R.id.button_momenteditor_addpicture);
+        addPicture = (ImageButton) findViewById(R.id.imagebutton_momenteditor_addpicture);
         addPicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

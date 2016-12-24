@@ -116,12 +116,13 @@
                 android:id="@+id/edittext_momenteditor_description"
                 android:layout_weight="1" />
 
-            <Button
+            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:id="@+id/button_momenteditor_addpicture"
-                android:text="@string/button_momenteditor_addpicture_text"/>
+                android:id="@+id/imagebutton_momenteditor_addpicture"
+                android:src="@mipmap/ic_add_plus_button"
+                android:background="@null"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
