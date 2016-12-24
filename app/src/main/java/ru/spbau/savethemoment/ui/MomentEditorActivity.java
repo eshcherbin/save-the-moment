@@ -525,5 +525,3 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
         }
     }
 }
-
-}
