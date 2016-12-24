@@ -22,10 +22,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -235,7 +231,6 @@ public class MomentViewActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == EDIT_MOMENT && resultCode == Activity.RESULT_OK) {
-//            moment = data.getParcelableExtra("Moment");
             getLoaderManager().restartLoader(LOADER_ID, null, this);
             display();
             showLocationButton();
@@ -278,8 +273,6 @@ public class MomentViewActivity extends AppCompatActivity
             listOfTags.add(tag);
         }
         tags.addTags(listOfTags);
-
-        layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momentview_media);
     }
 
     private void addPictureToLayout(Bitmap bitmap) {
