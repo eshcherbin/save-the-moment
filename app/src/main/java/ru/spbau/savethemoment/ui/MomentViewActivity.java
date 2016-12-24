@@ -98,7 +98,7 @@ public class MomentViewActivity extends AppCompatActivity
             public void onReceive(Context context, Intent intent) {
                 DriveId driveId = intent.getParcelableExtra(MediaChangeEventService.DRIVE_ID);
                 getLoaderManager().restartLoader(LOADER_ID, null, MomentViewActivity.this);
-                displayMedia(driveId);
+                loadAndDisplayMedia(driveId);
             }
         };
         registerReceiver(mediaChangeReceiver, new IntentFilter(MediaChangeEventService.ACTION));
@@ -127,18 +127,19 @@ public class MomentViewActivity extends AppCompatActivity
         if (!hasDownloadedMedia && mediaContentDriveIds != null) {
             hasDownloadedMedia = true;
             for (DriveId driveId : mediaContentDriveIds) {
-                displayMedia(driveId);
+                loadAndDisplayMedia(driveId);
             }
         }
     }
 
-    private void displayMedia(DriveId driveId) {
+    private void loadAndDisplayMedia(final DriveId driveId) {
         DriveManager.loadFileContents(googleApiClient, driveId,
                 new ResultCallback<DriveApi.DriveContentsResult>() {
                     @Override
                     public void onResult(@NonNull DriveApi.DriveContentsResult driveContentsResult) {
                         DriveContents driveContents = driveContentsResult.getDriveContents();
-                        addPictureToLayout(BitmapFactory.decodeStream(driveContents.getInputStream()));
+                        addPictureToLayout(BitmapFactory.decodeStream(driveContents.getInputStream()),
+                                driveContents.getDriveId());
                     }
                 });
     }
@@ -278,13 +279,27 @@ public class MomentViewActivity extends AppCompatActivity
             listOfTags.add(tag);
         }
         tags.addTags(listOfTags);
+
+        if (mediaContentDriveIds != null) {
+            List<View> mediaToRemove = new ArrayList<>();
+            for (int i = 0; i < layoutMedia.getChildCount(); i++) {
+                View pictureItem = layoutMedia.getChildAt(i);
+                if (!mediaContentDriveIds.contains(pictureItem.getTag())) {
+                    mediaToRemove.add(pictureItem);
+                }
+            }
+            for (View view : mediaToRemove) {
+                layoutMedia.removeView(view);
+            }
+        }
     }
 
-    private void addPictureToLayout(Bitmap bitmap) {
+    private void addPictureToLayout(Bitmap bitmap, DriveId driveId) {
         final View pictureItem = LayoutInflater.from(context).inflate(
                 R.layout.momentview_picture_item, mediaViewGroup, false);
         ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momentview_picture_item);
         image.setImageBitmap(getResizedBitmap(bitmap, layoutMedia.getWidth()));
+        pictureItem.setTag(driveId);
         layoutMedia.addView(pictureItem);
     }
 
