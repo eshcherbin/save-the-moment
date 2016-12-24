@@ -22,6 +22,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -100,6 +104,7 @@ public class MomentViewActivity extends AppCompatActivity
         registerReceiver(mediaChangeReceiver, new IntentFilter(MediaChangeEventService.ACTION));
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
+        layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momentview_media);
 
         momentId = (UUID) getIntent().getSerializableExtra(MOMENT_ID);
     }
