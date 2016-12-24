@@ -21,6 +21,7 @@
     <string name="button_momenteditor_editdate_text">Change date</string>
     <string name="button_momenteditor_edittime_text">Change time</string>
     <string name="button_momenteditor_editlocation_text">Change location</string>
+    <string name="button_momenteditor_addpicture_text">Add picture</string>
     <string name="text_list_of_moments_empty_text">No moments yet</string>
     <string name="menuitem_list_of_moments_new_moment_text">Create new moment</string>
     <string name="title_activity_choose_location">ChooseLocationActivity</string>
@@ -37,6 +38,9 @@
     <string name="alertdialog_tags_add">Enter new tag</string>
     <string name="alertdialog_tags_delete_title">Delete tag</string>
     <string name="alertdialog_tags_delete_text">Are you sure you want to delete tag</string>
+    <string name="alertdialog_image_delete_title">Delete picture</string>
+    <string name="alertdialog_image_delete_text">Are you sure you want to delete picture?</string>
     <string name="textview_momentview_tags_text">Tags</string>
     <string name="edittext_momenteditor_tags_add_text">Enter new tag</string>
+    <string name="error_title_required">Title is required</string>
 </resources>
