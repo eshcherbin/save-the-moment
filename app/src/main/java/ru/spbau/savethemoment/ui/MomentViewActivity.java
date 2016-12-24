@@ -11,13 +11,8 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cunoraz.tagview.Tag;
@@ -44,17 +39,12 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
     private Moment moment;
     private Menu menu;
     private MomentManager momentManager;
-    private LinearLayout layoutMedia;
-    private Context context;
-    private ViewGroup mediaViewGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_momentview);
 
-        context = this;
-        mediaViewGroup = (ViewGroup) findViewById(R.id.linearlayout_momentview_media);
         momentManager = new MomentManager(this);
 
         toolbar = (Toolbar) findViewById(R.id.tool_bar_momentview);
@@ -176,9 +166,6 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
             listOfTags.add(tag);
         }
         tags.addTags(listOfTags);
-
-     //   layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momentview_media);
-        //call addPictureToLayout to add pictures
         //TODO: displaying media content
     }
 
@@ -213,16 +200,5 @@ public class MomentViewActivity extends AppCompatActivity implements LoaderManag
             data = momentManager.getMomentById(momentId);
             return data;
         }
-    }
-
-    /**
-     * Prepared to load images from drive
-     */
-    private void addPictureToLayout() {
-        final View pictureItem = LayoutInflater.from(context).inflate(
-                R.layout.momentview_picture_item, mediaViewGroup, false);
-        ImageView image = (ImageView) pictureItem.findViewById(R.id.imageview_momentview_picture_item);
-        //load image
-        layoutMedia.addView(pictureItem);
     }
 }
