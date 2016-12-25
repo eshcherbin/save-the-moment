@@ -125,8 +125,8 @@ public class MomentManager {
                         + MOMENTS_TABLE + "." + MOMENT_ID + " = "
                         + TAGS_TABLE + "." + TAG_MOMENT_ID,
                 MOMENT_COLUMNS, selection, selectionArgs, MOMENT_ID,
-                "count(" + TAGS_TABLE + "." + TAG_NAME + ") = "
-                        + String.valueOf(tags.size()), null);
+                "count(" + TAGS_TABLE + "." + TAG_NAME + ") > 0",
+                "count(" + TAGS_TABLE + "." + TAG_NAME + ") desc");
     }
 
     public void deleteMomentById(UUID momentId) {
