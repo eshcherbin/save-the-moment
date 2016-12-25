@@ -1,4 +1,4 @@
-package ru.spbau.savethemoment.momentmanager;
+package ru.spbau.savethemoment.datamanagers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -64,7 +64,7 @@ public class MomentManagerTest {
 
     @Test
     public void getMomentsEmptyTest() {
-        Cursor cursor = momentManager.getMoments();
+        Cursor cursor = momentManager.getMoments(false);
         assertTrue(cursor.isAfterLast());
     }
 
@@ -73,7 +73,7 @@ public class MomentManagerTest {
         moment = new Moment(id, "Title", "Description", Calendar.getInstance(),
                 new Location(""), "Address", Collections.<String>emptySet());
         momentManager.insertMoment(moment);
-        Cursor cursor = momentManager.getMoments();
+        Cursor cursor = momentManager.getMoments(false);
         assertTrue(cursor.moveToFirst());
         assertEquals(moment.getId().toString(), cursor.getString(cursor.getColumnIndex(MomentManager.MOMENT_ID)));
         assertEquals(7, cursor.getColumnCount());
@@ -86,7 +86,7 @@ public class MomentManagerTest {
                 new Location(""), "Address", Collections.<String>emptySet());
         momentManager.insertMoment(moment);
         momentManager.deleteMomentById(moment.getId());
-        Cursor cursor = momentManager.getMoments();
+        Cursor cursor = momentManager.getMoments(false);
         assertFalse(cursor.moveToNext());
     }
 

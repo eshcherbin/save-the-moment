@@ -1,4 +1,4 @@
-package ru.spbau.savethemoment.momentmanager;
+package ru.spbau.savethemoment.datamanagers;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
