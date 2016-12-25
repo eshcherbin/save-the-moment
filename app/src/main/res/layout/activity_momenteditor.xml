@@ -16,6 +16,14 @@
             layout="@layout/tool_bar"
             ></include>
 
+        <LinearLayout
+            android:id="@+id/linearlayout_dummy"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:orientation="vertical"/>
+
         <EditText
             android:gravity="center"
             android:hint="@string/edittext_momenteditor_title_text"
@@ -23,7 +31,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/edittext_momenteditor_title"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:inputType="text"/>
 
         <LinearLayout
             android:orientation="vertical"
