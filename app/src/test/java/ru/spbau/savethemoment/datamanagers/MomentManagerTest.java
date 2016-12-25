@@ -1,4 +1,4 @@
-package ru.spbau.savethemoment.momentmanager;
+package ru.spbau.savethemoment.datamanagers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -22,7 +22,11 @@ import java.util.UUID;
 import ru.spbau.savethemoment.BuildConfig;
 import ru.spbau.savethemoment.common.Moment;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @Config(constants = BuildConfig.class, sdk = 21, manifest = "/src/main/AndroidManifest.xml")
 @RunWith(RobolectricTestRunner.class)

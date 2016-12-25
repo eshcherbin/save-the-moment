@@ -44,7 +44,7 @@ import java.util.Set;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
-import ru.spbau.savethemoment.momentmanager.MomentManager;
+import ru.spbau.savethemoment.datamanagers.MomentManager;
 
 import static ru.spbau.savethemoment.R.string.alertdialog_tags_delete_text;
 import static ru.spbau.savethemoment.R.string.error_title_required;
