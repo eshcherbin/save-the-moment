@@ -10,24 +10,29 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.ListOfMomentsActivity">
+        <activity android:name=".ui.ListOfMomentsActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.MomentViewActivity"/>
+        <activity android:name=".ui.MomentViewActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.MomentEditorActivity"
-            android:theme="@style/AppTheme"/>
+            android:theme="@style/AppTheme"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ui.ChooseLocationActivity"
-            android:label="@string/title_activity_choose_location">
+            android:label="@string/title_activity_choose_location"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".ui.MapOfMomentsActivity"
-            android:label="@string/title_activity_map_of_moments">
+            android:label="@string/title_activity_map_of_moments"
+            android:screenOrientation="portrait">
         </activity>
 
         <meta-data
@@ -37,6 +42,14 @@
         <service
             android:name=".common.FetchAddressIntentService"
             android:exported="false">
+        </service>
+        <service
+            android:name=".datamanagers.MediaChangeEventService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.drive.events.HANDLE_EVENT"/>
+            </intent-filter>
         </service>
     </application>
 
