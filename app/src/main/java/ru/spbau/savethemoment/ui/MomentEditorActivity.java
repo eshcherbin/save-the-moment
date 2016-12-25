@@ -184,8 +184,7 @@ public class MomentEditorActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() != 0 && s.charAt(s.length() - 1) == '\n') {
-                    String realString = s.subSequence(0, s.length() - 1).toString();
-                    title.setText(realString);
+                    title.setText(s.subSequence(0, s.length() - 1));
                     findViewById(R.id.edittext_momenteditor_description).requestFocus();
                 }
             }
