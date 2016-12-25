@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -79,6 +80,7 @@ public class MomentEditorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_momenteditor);
 
         context = this;
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         mediaViewGroup = (ViewGroup) findViewById(R.id.linearlayout_momenteditor_media);
         momentManager = new MomentManager(this);
 
