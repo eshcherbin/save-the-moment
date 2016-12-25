@@ -1,5 +1,7 @@
 package ru.spbau.savethemoment.datamanagers;
 
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -16,7 +18,10 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 
+import java.io.BufferedOutputStream;
 import java.util.UUID;
+
+import ru.spbau.savethemoment.common.SaveTheMomentApplication;
 
 public class DriveManager {
 
@@ -56,6 +61,34 @@ public class DriveManager {
 
     public static void deleteMediaContentFile(GoogleApiClient googleApiClient, DriveId driveId) {
         driveId.asDriveFile().delete(googleApiClient);
+    }
+
+    public static class UploadMediaTask extends AsyncTask<Void, Void, Void> {
+        public static final int COMPRESSION_QUALITY = 100;
+        public static final String TAG = "UploadMediaTask";
+        private UUID momentId;
+        private Bitmap bitmap;
+
+        public UploadMediaTask(UUID momentId,
+                               Bitmap bitmap) {
+            this.momentId = momentId;
+            this.bitmap = bitmap;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            GoogleApiClient googleApiClient = SaveTheMomentApplication.getGoogleApiClient();
+            Log.d(TAG, "started");
+            Log.d(TAG, "googleApiClient.isConnected() == " + googleApiClient.isConnected());
+            DriveContents driveContents = Drive.DriveApi.newDriveContents(googleApiClient).await().getDriveContents();
+            Log.d(TAG, "got driveContents");
+            bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY,
+                    new BufferedOutputStream(driveContents.getOutputStream()));
+            Log.d(TAG, "compressed bitmap");
+            DriveManager.createMediaContentFile(googleApiClient, momentId, driveContents);
+            Log.d(TAG, "completed");
+            return null;
+        }
     }
 }
 
