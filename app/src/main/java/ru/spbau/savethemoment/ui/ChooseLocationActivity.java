@@ -148,6 +148,7 @@ public class ChooseLocationActivity extends FragmentActivity implements
     private void setResultPosition(LatLng latLng) {
         result.putExtra(POSITION_LAT_LNG_NAME, latLng);
         setResult(RESULT_OK, result);
+        result.putExtra(ADDRESS, "");
         requestAddress(locationMarker.getPosition());
     }
 
