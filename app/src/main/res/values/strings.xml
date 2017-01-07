@@ -43,4 +43,5 @@
     <string name="textview_momentview_tags_text">Tags</string>
     <string name="edittext_momenteditor_tags_add_text">Enter new tag</string>
     <string name="error_title_required">Title is required</string>
+    <string name="button_choose_location_ok_text">OK</string>
 </resources>
