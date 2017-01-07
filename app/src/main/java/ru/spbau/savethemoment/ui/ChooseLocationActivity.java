@@ -12,10 +12,11 @@ import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -34,7 +35,7 @@ import java.util.List;
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.FetchAddressIntentService;
 
-public class ChooseLocationActivity extends FragmentActivity implements
+public class ChooseLocationActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -49,8 +50,8 @@ public class ChooseLocationActivity extends FragmentActivity implements
     private GoogleMap googleMap;
     private AddressReceiver addressReceiver;
 
-    private Button buttonOk;
     private GoogleApiClient googleApiClient;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,13 +74,25 @@ public class ChooseLocationActivity extends FragmentActivity implements
         result = new Intent();
         addressReceiver = new AddressReceiver(null);
 
-        buttonOk = (Button) findViewById(R.id.button_choose_location_ok);
-        buttonOk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ChooseLocationActivity.this.finish();
-            }
-        });
+        toolbar = (Toolbar) findViewById(R.id.tool_bar_chooselocation);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(null);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_chooselocation, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.menuitem_choose_location_ok) {
+            ChooseLocationActivity.this.finish();
+            return true;
+        }
+        return false;
     }
 
     @Override
