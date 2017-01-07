@@ -32,7 +32,9 @@
             android:layout_height="wrap_content"
             android:id="@+id/edittext_momenteditor_title"
             android:layout_weight="1"
-            android:inputType="text"/>
+            android:inputType="text"
+            android:maxLines="1"
+            android:imeOptions="actionNext" />
 
         <LinearLayout
             android:orientation="vertical"
