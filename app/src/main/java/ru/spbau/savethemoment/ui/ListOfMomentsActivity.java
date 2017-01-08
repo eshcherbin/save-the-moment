@@ -37,6 +37,7 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
 
     private static final int LOADER_ID = 0;
     private static final String PATTERN_TAG_SEPARATOR = ",";
+    private static final String TAGS = "Tags";
 
     private Toolbar toolbar;
     private ListView listViewMoments;
@@ -96,7 +97,7 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
                     return;
                 }
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(processStringOfTags(s))));
+                bundle.putSerializable(TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
                 getLoaderManager().restartLoader(LOADER_ID, bundle, ListOfMomentsActivity.this);
             }
 
@@ -122,6 +123,10 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             return true;
         } else if (id == R.id.menuitem_list_of_moments_show_on_map) {
             Intent intent = new Intent(this, MapOfMomentsActivity.class);
+            CharSequence s = ((EditText) findViewById(R.id.edittext_list_of_moments_tags)).getText();
+            if (s.length() != 0) {
+                intent.putExtra(TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
+            }
             startActivity(intent);
             return true;
         }
@@ -137,15 +142,15 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             getLoaderManager().restartLoader(LOADER_ID, null, this);
         } else {
             Bundle bundle = new Bundle();
-            bundle.putSerializable("Tags", new HashSet<>(Arrays.asList(processStringOfTags(s))));
+            bundle.putSerializable(TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
             getLoaderManager().restartLoader(LOADER_ID, bundle, this);
         }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (args != null && args.keySet().contains("Tags")) {
-            return new MomentsLoader(this, (Set<String>) args.getSerializable("Tags"), false);
+        if (args != null && args.keySet().contains(TAGS)) {
+            return new MomentsLoader(this, (Set<String>) args.getSerializable(TAGS), false);
         } else {
             return new MomentsLoader(this, null, false);
         }
