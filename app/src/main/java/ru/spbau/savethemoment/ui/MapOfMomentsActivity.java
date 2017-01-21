@@ -20,8 +20,8 @@ import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
 import ru.spbau.savethemoment.common.Moment;
-import ru.spbau.savethemoment.momentmanager.MomentManager;
-import ru.spbau.savethemoment.momentmanager.MomentsLoader;
+import ru.spbau.savethemoment.datamanagers.MomentManager;
+import ru.spbau.savethemoment.datamanagers.MomentsLoader;
 
 public class MapOfMomentsActivity extends FragmentActivity implements
         OnMapReadyCallback,
