@@ -131,7 +131,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:id="@+id/imagebutton_momenteditor_addpicture"
+                android:id="@+id/imagebutton_momenteditor_addmedia"
                 android:src="@mipmap/ic_add_plus_button"
                 android:background="@null"/>
 

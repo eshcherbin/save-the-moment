@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -36,6 +38,7 @@ import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -53,6 +56,8 @@ import static ru.spbau.savethemoment.R.string.error_title_required;
 public class MomentEditorActivity extends AppCompatActivity {
     private static final int CHOOSE_LOCATION_REQUEST_CODE = 0;
     private static final int CHOOSE_PICTURE_REQUEST_CODE = 1;
+    private static final int CHOOSE_AUDIO_REQUEST_CODE = 2;
+    private static final int CHOOSE_VIDEO_REQUEST_CODE = 3;
 
     private ViewGroup mediaViewGroup;
     private Toolbar toolbar;
@@ -66,12 +71,14 @@ public class MomentEditorActivity extends AppCompatActivity {
     private Button editDate;
     private Button editTime;
     private Button editLocation;
-    private ImageButton addPicture;
+    private ImageButton addMedia;
     private LinearLayout layoutMedia;
     private TagView tags;
     private Context context;
     private boolean startedWithMoment;
 
+    private MediaPlayer mediaPlayer = null;
+    private AudioPlayerItem nowPlaying = null;
     private MomentManager momentManager;
 
     @Override
@@ -160,6 +167,14 @@ public class MomentEditorActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+        if (requestCode == CHOOSE_AUDIO_REQUEST_CODE && resultCode == RESULT_OK) {
+            Uri audioUri = data.getData();
+            addAudioToLayout(audioUri);
+            //TODO : save changes in Drive and DB
+        }
+        if (requestCode == CHOOSE_VIDEO_REQUEST_CODE && resultCode == RESULT_OK) {
+            //TODO : handle video
         }
     }
 
@@ -291,18 +306,54 @@ public class MomentEditorActivity extends AppCompatActivity {
     private void initMedia() {
         layoutMedia = (LinearLayout) findViewById(R.id.linearlayout_momenteditor_media);
 
-        addPicture = (ImageButton) findViewById(R.id.imagebutton_momenteditor_addpicture);
-        addPicture.setOnClickListener(new View.OnClickListener() {
+        addMedia = (ImageButton) findViewById(R.id.imagebutton_momenteditor_addmedia);
+        addMedia.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: take a picture
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                pickIntent.setType("image/*");
-                startActivityForResult(pickIntent, CHOOSE_PICTURE_REQUEST_CODE);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(R.string.dialog_add_media_title);
+                builder.setItems(new CharSequence[] {
+                        getResources().getString(R.string.Photo),
+                        getResources().getString(R.string.Audio),
+                        getResources().getString(R.string.Video)},
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case 0:
+                                        addPicture();
+                                        break;
+                                    case 1:
+                                        addAudio();
+                                        break;
+                                    case 2:
+                                        addVideo();
+                                        break;
+                                }
+                            }
+                        });
+                builder.create().show();
             }
         });
+    }
 
-        //TODO: add audio and video
+    private void addPicture() {
+        //TODO: take a picture
+        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+        startActivityForResult(pickIntent, CHOOSE_PICTURE_REQUEST_CODE);
+    }
+
+    private void addAudio() {
+        //TODO: record audio
+        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickIntent, CHOOSE_AUDIO_REQUEST_CODE);
+    }
+
+    private void addVideo() {
+        //TODO: record video
+        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("video/*");
+        startActivityForResult(pickIntent, CHOOSE_VIDEO_REQUEST_CODE);
     }
 
     private void saveTextChanges() {
@@ -412,7 +463,49 @@ public class MomentEditorActivity extends AppCompatActivity {
         layoutMedia.addView(pictureItem);
     }
 
-    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+    private void addAudioToLayout(Uri audioUri) {
+        final View audioItem = LayoutInflater.from(context).inflate(
+                R.layout.momenteditor_audio_item, mediaViewGroup, false);
+        Button playButton = (Button) audioItem.findViewById(R.id.button_momenteditor_audio_item);
+        final AudioPlayerItem item = new AudioPlayerItem(audioUri, playButton);
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                item.changeState();
+            }
+        });
+        ImageButton deleteButton = (ImageButton) audioItem.findViewById(R.id.imagebutton_momenteditor_audio_item_delete);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                alert.setTitle(R.string.alertdialog_audio_delete_title);
+                alert.setMessage(R.string.alertdialog_audio_delete_text);
+                alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //TODO: save changes in Drive and DB
+                        item.finishPlaying();
+                        layoutMedia.removeView(audioItem);
+                        dialog.dismiss();
+                    }
+                });
+                alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+            }
+        });
+        layoutMedia.addView(audioItem);
+    }
+
+    private Bitmap getResizedBitmap(Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -425,6 +518,56 @@ public class MomentEditorActivity extends AppCompatActivity {
             width = (int) (height * bitmapRatio);
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+    private class AudioPlayerItem {
+        boolean started = false;
+        Button playButton;
+        Uri path;
+
+        AudioPlayerItem(Uri path, Button playButton) {
+            this.path = path;
+            this.playButton = playButton;
+        }
+
+        void finishPlaying() {
+            if (nowPlaying == this) {
+                playButton.setText(R.string.button_momenteditor_start);
+                started = false;
+                nowPlaying = null;
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+        }
+
+        void changeState() {
+            if (started) {
+                finishPlaying();
+            } else {
+                if (nowPlaying != null) {
+                    nowPlaying.finishPlaying();
+                }
+                try {
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setDataSource(context, path);
+                    mediaPlayer.setLooping(false);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                    started = true;
+                    nowPlaying = this;
+                    playButton.setText(R.string.button_momenteditor_stop);
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mp) {
+                            finishPlaying();
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(context, "Unable to play audiofile", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 
 }
