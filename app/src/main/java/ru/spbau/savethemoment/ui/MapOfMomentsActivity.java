@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
+import ru.spbau.savethemoment.common.Constants;
 import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
 import ru.spbau.savethemoment.datamanagers.MomentsLoader;
@@ -32,7 +33,6 @@ public class MapOfMomentsActivity extends FragmentActivity implements
     public static final String MOMENT = "Moment";
     public static final String IS_SINGLE_MOMENT = "IsSingleMoment";
     public static final int SINGLE_MOMENT_ZOOM = 10;
-    private static final String TAGS = "Tags";
 
     private static final int LOADER_ID = 0;
 
@@ -42,6 +42,7 @@ public class MapOfMomentsActivity extends FragmentActivity implements
     private GoogleMap googleMap;
 
     private HashSet<String> tagsToFilter = null;
+    Bundle bundleForMapCalls = new Bundle();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +55,9 @@ public class MapOfMomentsActivity extends FragmentActivity implements
             singleMoment = data.getParcelableExtra(MOMENT);
         }
 
-        if (data.hasExtra(TAGS)) {
-            tagsToFilter = (HashSet<String>) data.getSerializableExtra(TAGS);
+        if (data.hasExtra(Constants.TAGS)) {
+            tagsToFilter = (HashSet<String>) data.getSerializableExtra(Constants.TAGS);
+            bundleForMapCalls.putSerializable(Constants.TAGS, tagsToFilter);
         }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -67,13 +69,7 @@ public class MapOfMomentsActivity extends FragmentActivity implements
     protected void onStart() {
         super.onStart();
         if (!isSingleMoment) {
-            if (tagsToFilter == null) {
-                getLoaderManager().restartLoader(LOADER_ID, null, this);
-            } else {
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(TAGS, tagsToFilter);
-                getLoaderManager().restartLoader(LOADER_ID, bundle, this);
-            }
+            getLoaderManager().restartLoader(LOADER_ID, bundleForMapCalls, this);
         }
     }
 
@@ -88,14 +84,7 @@ public class MapOfMomentsActivity extends FragmentActivity implements
             marker.setTag(singleMoment.getId());
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), SINGLE_MOMENT_ZOOM));
         } else {
-            if (tagsToFilter == null) {
-                getLoaderManager().initLoader(LOADER_ID, null, this);
-            } else {
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(TAGS, tagsToFilter);
-                getLoaderManager().initLoader(LOADER_ID, bundle, this);
-            }
-    //        getLoaderManager().initLoader(LOADER_ID, null, this);
+            getLoaderManager().initLoader(LOADER_ID, bundleForMapCalls, this);
         }
         googleMap.setOnMarkerClickListener(this);
     }

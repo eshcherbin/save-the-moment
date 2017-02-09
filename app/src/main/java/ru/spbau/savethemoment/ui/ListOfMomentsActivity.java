@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import ru.spbau.savethemoment.R;
+import ru.spbau.savethemoment.common.Constants;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
 import ru.spbau.savethemoment.datamanagers.MomentsLoader;
 
@@ -37,7 +38,6 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
 
     private static final int LOADER_ID = 0;
     private static final String PATTERN_TAG_SEPARATOR = ",";
-    private static final String TAGS = "Tags";
 
     private Toolbar toolbar;
     private ListView listViewMoments;
@@ -97,7 +97,7 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
                     return;
                 }
                 Bundle bundle = new Bundle();
-                bundle.putSerializable(TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
+                bundle.putSerializable(Constants.TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
                 getLoaderManager().restartLoader(LOADER_ID, bundle, ListOfMomentsActivity.this);
             }
 
@@ -125,7 +125,7 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             Intent intent = new Intent(this, MapOfMomentsActivity.class);
             CharSequence s = ((EditText) findViewById(R.id.edittext_list_of_moments_tags)).getText();
             if (s.length() != 0) {
-                intent.putExtra(TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
+                intent.putExtra(Constants.TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
             }
             startActivity(intent);
             return true;
@@ -142,15 +142,15 @@ public class ListOfMomentsActivity extends AppCompatActivity implements LoaderMa
             getLoaderManager().restartLoader(LOADER_ID, null, this);
         } else {
             Bundle bundle = new Bundle();
-            bundle.putSerializable(TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
+            bundle.putSerializable(Constants.TAGS, new HashSet<>(Arrays.asList(processStringOfTags(s))));
             getLoaderManager().restartLoader(LOADER_ID, bundle, this);
         }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (args != null && args.keySet().contains(TAGS)) {
-            return new MomentsLoader(this, (Set<String>) args.getSerializable(TAGS), false);
+        if (args != null && args.keySet().contains(Constants.TAGS)) {
+            return new MomentsLoader(this, (Set<String>) args.getSerializable(Constants.TAGS), false);
         } else {
             return new MomentsLoader(this, null, false);
         }
