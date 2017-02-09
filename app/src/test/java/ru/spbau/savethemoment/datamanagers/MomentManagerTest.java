@@ -1,4 +1,4 @@
-package ru.spbau.savethemoment.momentmanager;
+package ru.spbau.savethemoment.datamanagers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -23,10 +23,10 @@ import ru.spbau.savethemoment.BuildConfig;
 import ru.spbau.savethemoment.common.Moment;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 @Config(constants = BuildConfig.class, sdk = 21, manifest = "/src/main/AndroidManifest.xml")
 @RunWith(RobolectricTestRunner.class)
@@ -68,7 +68,7 @@ public class MomentManagerTest {
 
     @Test
     public void getMomentsEmptyTest() {
-        Cursor cursor = momentManager.getMoments(false);
+        Cursor cursor = momentManager.getMoments();
         assertTrue(cursor.isAfterLast());
     }
 
@@ -77,7 +77,7 @@ public class MomentManagerTest {
         moment = new Moment(id, "Title", "Description", Calendar.getInstance(),
                 new Location(""), "Address", Collections.<String>emptySet());
         momentManager.insertMoment(moment);
-        Cursor cursor = momentManager.getMoments(false);
+        Cursor cursor = momentManager.getMoments();
         assertTrue(cursor.moveToFirst());
         assertEquals(moment.getId().toString(), cursor.getString(cursor.getColumnIndex(MomentManager.MOMENT_ID)));
         assertEquals(7, cursor.getColumnCount());
@@ -90,7 +90,7 @@ public class MomentManagerTest {
                 new Location(""), "Address", Collections.<String>emptySet());
         momentManager.insertMoment(moment);
         momentManager.deleteMomentById(moment.getId());
-        Cursor cursor = momentManager.getMoments(false);
+        Cursor cursor = momentManager.getMoments();
         assertFalse(cursor.moveToNext());
     }
 
@@ -113,13 +113,13 @@ public class MomentManagerTest {
         momentManager.insertMoment(moment2);
 
         Set<String> tags1 = ImmutableSet.of("anotherTestTag");
-        Cursor cursor = momentManager.getMomentsByTags(tags1, false);
+        Cursor cursor = momentManager.getMomentsByTags(tags1);
         assertTrue(cursor.moveToNext());
         assertEquals(moment.getId().toString(), cursor.getString(cursor.getColumnIndex(MomentManager.MOMENT_ID)));
         assertFalse(cursor.moveToNext());
 
         Set<String> tags2 = ImmutableSet.of("testTag");
-        cursor = momentManager.getMomentsByTags(tags2, false);
+        cursor = momentManager.getMomentsByTags(tags2);
         Set<String> ids = new HashSet<>();
         assertTrue(cursor.moveToNext());
         ids.add(cursor.getString(cursor.getColumnIndex(MomentManager.MOMENT_ID)));
