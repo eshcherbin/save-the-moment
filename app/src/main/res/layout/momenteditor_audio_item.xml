@@ -7,6 +7,10 @@
         android:layout_height="wrap_content"
         android:id="@+id/button_momenteditor_audio_item"
         android:text="@string/button_momenteditor_start"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textview_momenteditor_audio_item_title"/>
     <ImageButton android:id="@+id/imagebutton_momenteditor_audio_item_delete"
         android:layout_width="30dp"
         android:layout_height="30dp"

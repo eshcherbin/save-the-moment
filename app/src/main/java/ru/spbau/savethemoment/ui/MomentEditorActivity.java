@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -466,6 +467,16 @@ public class MomentEditorActivity extends AppCompatActivity {
     private void addAudioToLayout(Uri audioUri) {
         final View audioItem = LayoutInflater.from(context).inflate(
                 R.layout.momenteditor_audio_item, mediaViewGroup, false);
+
+        MediaMetadataRetriever metaRetriver = new MediaMetadataRetriever();
+        metaRetriver.setDataSource(context, audioUri);
+        TextView text = (TextView) audioItem.findViewById(R.id.textview_momenteditor_audio_item_title);
+        try {
+           text.setText(metaRetriver.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE));
+        } catch (Exception e) {
+            text.setText("No title");
+        }
+
         Button playButton = (Button) audioItem.findViewById(R.id.button_momenteditor_audio_item);
         final AudioPlayerItem item = new AudioPlayerItem(audioUri, playButton);
         playButton.setOnClickListener(new View.OnClickListener() {
