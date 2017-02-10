@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,9 +32,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
@@ -175,6 +178,8 @@ public class MomentEditorActivity extends AppCompatActivity {
             //TODO : save changes in Drive and DB
         }
         if (requestCode == CHOOSE_VIDEO_REQUEST_CODE && resultCode == RESULT_OK) {
+            Uri videoUri = data.getData();
+            addVideoToLayout(videoUri);
             //TODO : handle video
         }
     }
@@ -445,7 +450,6 @@ public class MomentEditorActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //TODO: save changes in Drive and DB
                         layoutMedia.removeView(pictureItem);
                         dialog.dismiss();
                     }
@@ -496,7 +500,6 @@ public class MomentEditorActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //TODO: save changes in Drive and DB
                         item.finishPlaying();
                         layoutMedia.removeView(audioItem);
                         dialog.dismiss();
@@ -514,6 +517,59 @@ public class MomentEditorActivity extends AppCompatActivity {
             }
         });
         layoutMedia.addView(audioItem);
+    }
+
+    private void addVideoToLayout(Uri videoUri) {
+        final View videoItem = LayoutInflater.from(context).inflate(
+                R.layout.momenteditor_video_item, mediaViewGroup, false);
+        final VideoView videoView = (VideoView) videoItem.findViewById(R.id.videoview_momenteditor_video_item);
+        MediaController mediaController = new MediaController(context);
+        mediaController.setAnchorView(videoView);
+        videoView.setMediaController(mediaController);
+
+        ViewGroup.LayoutParams params = videoView.getLayoutParams();
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        params.height = displaymetrics.heightPixels;
+        params.width = displaymetrics.widthPixels;
+        videoView.setLayoutParams(params);
+
+        videoView.setVideoURI(videoUri);
+        videoView.requestFocus();
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            public void onPrepared(MediaPlayer mp) {
+                videoView.start();
+                videoView.pause();
+            }
+        });
+        ImageButton deleteButton = (ImageButton) videoItem.findViewById(R.id.imagebutton_momenteditor_video_item);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                alert.setTitle(R.string.alertdialog_video_delete_title);
+                alert.setMessage(R.string.alertdialog_video_delete_text);
+                alert.setPositiveButton(R.string.alertdialog_yes, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        videoView.pause();
+                        layoutMedia.removeView(videoItem);
+                        dialog.dismiss();
+                    }
+                });
+                alert.setNegativeButton(R.string.alertdialog_no, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                alert.show();
+            }
+        });
+        layoutMedia.addView(videoItem);
     }
 
     private Bitmap getResizedBitmap(Bitmap image, int maxSize) {

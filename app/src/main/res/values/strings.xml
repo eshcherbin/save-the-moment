@@ -40,8 +40,10 @@
     <string name="alertdialog_tags_delete_text">Are you sure you want to delete tag</string>
     <string name="alertdialog_image_delete_title">Delete picture</string>
     <string name="alertdialog_image_delete_text">Are you sure you want to delete picture?</string>
-    <string name="alertdialog_audio_delete_title">Delete audiofile</string>
-    <string name="alertdialog_audio_delete_text">Are you sure you want to delete audiofile?</string>
+    <string name="alertdialog_audio_delete_title">Delete audio</string>
+    <string name="alertdialog_audio_delete_text">Are you sure you want to delete audio?</string>
+    <string name="alertdialog_video_delete_title">Delete video</string>
+    <string name="alertdialog_video_delete_text">Are you sure you want to delete video?</string>
     <string name="dialog_add_media_title">What do you want to add?</string>
     <string name="Photo">Photo</string>
     <string name="Audio">Audio</string>
