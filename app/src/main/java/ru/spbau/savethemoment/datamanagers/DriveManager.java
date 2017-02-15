@@ -78,15 +78,10 @@ public class DriveManager {
         @Override
         protected Void doInBackground(Void... params) {
             GoogleApiClient googleApiClient = SaveTheMomentApplication.getGoogleApiClient();
-            Log.d(TAG, "started");
-            Log.d(TAG, "googleApiClient.isConnected() == " + googleApiClient.isConnected());
             DriveContents driveContents = Drive.DriveApi.newDriveContents(googleApiClient).await().getDriveContents();
-            Log.d(TAG, "got driveContents");
             bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY,
                     new BufferedOutputStream(driveContents.getOutputStream()));
-            Log.d(TAG, "compressed bitmap");
             DriveManager.createMediaContentFile(googleApiClient, momentId, driveContents);
-            Log.d(TAG, "completed");
             return null;
         }
     }
