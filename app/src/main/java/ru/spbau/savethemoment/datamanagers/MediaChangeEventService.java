@@ -31,22 +31,19 @@ public class MediaChangeEventService extends DriveEventService {
         Log.d(TAG, "Change event on board!");
         DriveId driveId = changeEvent.getDriveId();
         GoogleApiClient googleApiClient = SaveTheMomentApplication.getGoogleApiClient();
-        DriveFolder appFolder = Drive.DriveApi.getAppFolder(googleApiClient);
         MetadataBuffer buffer = driveId.asDriveFile().listParents(googleApiClient).await().getMetadataBuffer();
-        for (int i = 0; i < buffer.getCount(); i++) {
-            Metadata metadata = buffer.get(i);
-            DriveId parentId = metadata.getDriveId();
-            if (parentId != appFolder) {
-                MomentManager momentManager = new MomentManager(this);
-                momentManager.insertMediaContent(UUID.fromString(metadata.getTitle()), driveId);
-                // send broadcast to let MomentViewActivity know that a new media should be added
-                Intent intent = new Intent();
-                intent.setAction(ACTION);
-                intent.putExtra(DRIVE_ID, driveId);
-                sendBroadcast(intent);
-            }
+        if (buffer.getCount() > 1) {
+            Log.e(TAG, "File has too many parents");
         }
+        Metadata metadata = buffer.get(0);
         buffer.release();
+        MomentManager momentManager = new MomentManager(this);
+        momentManager.insertMediaContent(UUID.fromString(metadata.getTitle()), driveId);
+        // send broadcast to let MomentViewActivity know that a new media should be added
+        Intent intent = new Intent();
+        intent.setAction(ACTION);
+        intent.putExtra(DRIVE_ID, driveId);
+        sendBroadcast(intent);
     }
 }
 
