@@ -165,10 +165,12 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
             if (startedWithMoment) {
                 momentManager.updateMoment(moment);
                 if (googleApiClient.isConnected()) {
-                    for (DriveId driveId : initialMediaContentDriveIds) {
-                        if (!mediaNotToDelete.contains(driveId)) {
-                            momentManager.deleteMediaContent(moment.getId(), driveId);
-                            DriveManager.deleteMediaContentFile(googleApiClient, driveId);
+                    if (initialMediaContentDriveIds != null) {
+                        for (DriveId driveId : initialMediaContentDriveIds) {
+                            if (!mediaNotToDelete.contains(driveId)) {
+                                momentManager.deleteMediaContent(moment.getId(), driveId);
+                                DriveManager.deleteMediaContentFile(googleApiClient, driveId);
+                            }
                         }
                     }
                     for (Bitmap bitmap : mediaToAdd) {
