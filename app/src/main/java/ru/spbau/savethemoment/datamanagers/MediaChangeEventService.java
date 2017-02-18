@@ -33,7 +33,7 @@ public class MediaChangeEventService extends DriveEventService {
         GoogleApiClient googleApiClient = SaveTheMomentApplication.getGoogleApiClient();
         MetadataBuffer buffer = driveId.asDriveFile().listParents(googleApiClient).await().getMetadataBuffer();
         if (buffer.getCount() > 1) {
-            Log.e(TAG, "File has too many parents");
+            throw new IllegalDriveStateException("File has more than one parents");
         }
         Metadata metadata = buffer.get(0);
         buffer.release();
@@ -46,4 +46,3 @@ public class MediaChangeEventService extends DriveEventService {
         sendBroadcast(intent);
     }
 }
-
