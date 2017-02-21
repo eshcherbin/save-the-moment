@@ -38,6 +38,7 @@ public class MomentManager {
 
     public static final String TAG_MOMENT_ID = "moment_id";
     public static final String TAG_NAME = "name";
+    public static final String TAGS = "Tags";
 
     public static final String MEDIA_MOMENT_ID = "moment_id";
     public static final String MEDIA_DRIVE_ID = "drive_id";
@@ -128,7 +129,7 @@ public class MomentManager {
         if (selectionArgs.length > 0) {
             selectionBuilder = new StringBuilder(
                     locationRequired
-                        ? MOMENT_LOCATION_LONGITUDE + " is not null and " + MOMENT_LOCATION_LATITUDE + " is not null"
+                        ? MOMENT_LOCATION_LONGITUDE + " is not null and " + MOMENT_LOCATION_LATITUDE + " is not null and "
                         : "");
             for (int i = 0; i < selectionArgs.length - 1; i++) {
                 selectionBuilder.append(TAGS_TABLE + "." + TAG_NAME + " = ? OR ");
