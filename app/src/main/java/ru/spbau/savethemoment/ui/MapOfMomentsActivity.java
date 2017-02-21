@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
-import ru.spbau.savethemoment.common.Constants;
 import ru.spbau.savethemoment.common.Moment;
 import ru.spbau.savethemoment.datamanagers.MomentManager;
 import ru.spbau.savethemoment.datamanagers.MomentsLoader;
@@ -55,9 +54,9 @@ public class MapOfMomentsActivity extends FragmentActivity implements
             singleMoment = data.getParcelableExtra(MOMENT);
         }
 
-        if (data.hasExtra(Constants.TAGS)) {
-            tagsToFilter = (HashSet<String>) data.getSerializableExtra(Constants.TAGS);
-            bundleForMapCalls.putSerializable(Constants.TAGS, tagsToFilter);
+        if (data.hasExtra(MomentManager.TAGS)) {
+            tagsToFilter = (HashSet<String>) data.getSerializableExtra(MomentManager.TAGS);
+            bundleForMapCalls.putSerializable(MomentManager.TAGS, tagsToFilter);
         }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

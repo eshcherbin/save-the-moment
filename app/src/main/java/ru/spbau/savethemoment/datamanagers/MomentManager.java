@@ -38,6 +38,7 @@ public class MomentManager {
 
     public static final String TAG_MOMENT_ID = "moment_id";
     public static final String TAG_NAME = "name";
+    public static final String TAGS = "Tags";
 
     public static final String MEDIA_MOMENT_ID = "moment_id";
     public static final String MEDIA_DRIVE_ID = "drive_id";
