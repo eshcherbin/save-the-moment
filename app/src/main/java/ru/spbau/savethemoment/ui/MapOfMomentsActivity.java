@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 import ru.spbau.savethemoment.R;
@@ -39,6 +40,9 @@ public class MapOfMomentsActivity extends FragmentActivity implements
 
     private GoogleMap googleMap;
 
+    private HashSet<String> tagsToFilter = null;
+    Bundle bundleForMapCalls = new Bundle();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +54,11 @@ public class MapOfMomentsActivity extends FragmentActivity implements
             singleMoment = data.getParcelableExtra(MOMENT);
         }
 
+        if (data.hasExtra(MomentManager.TAGS)) {
+            tagsToFilter = (HashSet<String>) data.getSerializableExtra(MomentManager.TAGS);
+            bundleForMapCalls.putSerializable(MomentManager.TAGS, tagsToFilter);
+        }
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_of_moments_fragment);
         mapFragment.getMapAsync(this);
@@ -59,7 +68,7 @@ public class MapOfMomentsActivity extends FragmentActivity implements
     protected void onStart() {
         super.onStart();
         if (!isSingleMoment) {
-            getLoaderManager().restartLoader(LOADER_ID, null, this);
+            getLoaderManager().restartLoader(LOADER_ID, bundleForMapCalls, this);
         }
     }
 
@@ -74,7 +83,7 @@ public class MapOfMomentsActivity extends FragmentActivity implements
             marker.setTag(singleMoment.getId());
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), SINGLE_MOMENT_ZOOM));
         } else {
-            getLoaderManager().initLoader(LOADER_ID, null, this);
+            getLoaderManager().initLoader(LOADER_ID, bundleForMapCalls, this);
         }
         googleMap.setOnMarkerClickListener(this);
     }
@@ -95,7 +104,7 @@ public class MapOfMomentsActivity extends FragmentActivity implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new MomentsLoader(this, null, true);
+        return new MomentsLoader(this, tagsToFilter, true);
     }
 
     @Override
