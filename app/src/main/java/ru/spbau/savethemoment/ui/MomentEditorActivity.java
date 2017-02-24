@@ -36,6 +36,8 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.cunoraz.tagview.Tag;
+import com.cunoraz.tagview.TagView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -44,8 +46,6 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveId;
-import com.cunoraz.tagview.Tag;
-import com.cunoraz.tagview.TagView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.InputStream;
@@ -91,6 +91,8 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
 
     private MomentManager momentManager;
     private GoogleApiClient googleApiClient;
+    private HashSet<Bitmap> mediaToAdd;
+    private HashSet<DriveId> mediaNotToDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,47 +147,15 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                 return true;
             }
             saveTextChanges();
-            Set<Bitmap> mediaToAdd = new HashSet<>();
-            Set<DriveId> mediaNotToDelete = new HashSet<>();
-            for (int i = 0; i < layoutMedia.getChildCount(); i++) {
-                View pictureItem = layoutMedia.getChildAt(i);
-                ImageView imageView;
-                try {
-                    imageView = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
-                } catch (ClassCastException e) {
-                    continue;
-                }
-                DriveId driveId = (DriveId) pictureItem.getTag();
-                if (driveId != null) {
-                    mediaNotToDelete.add(driveId);
-                } else {
-                    mediaToAdd.add(((BitmapDrawable) imageView.getDrawable()).getBitmap());
-                }
-            }
+            saveMediaChanges();
             if (startedWithMoment) {
                 momentManager.updateMoment(moment);
-                if (googleApiClient.isConnected()) {
-                    if (initialMediaContentDriveIds != null) {
-                        for (DriveId driveId : initialMediaContentDriveIds) {
-                            if (!mediaNotToDelete.contains(driveId)) {
-                                momentManager.deleteMediaContent(moment.getId(), driveId);
-                                DriveManager.deleteMediaContentFile(googleApiClient, driveId);
-                            }
-                        }
-                    }
-                    for (Bitmap bitmap : mediaToAdd) {
-                        DriveManager.uploadMediaContentFile(moment.getId(), bitmap);
-                    }
-                }
                 Intent intent = new Intent();
                 intent.putExtra("Moment", moment);
                 setResult(Activity.RESULT_OK, intent);
                 finish();
             } else {
                 momentManager.insertMoment(moment);
-                for (Bitmap bitmap : mediaToAdd) {
-                    DriveManager.uploadMediaContentFile(moment.getId(), bitmap);
-                }
                 Intent intent = new Intent(this, MomentViewActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.putExtra("MomentId", moment.getId());
@@ -374,6 +344,49 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
     private void saveTextChanges() {
         moment.setTitle(title.getText().toString());
         moment.setDescription(description.getText().toString());
+    }
+
+    private void collectMediaChanges() {
+        mediaToAdd = new HashSet<>();
+        mediaNotToDelete = new HashSet<>();
+        for (int i = 0; i < layoutMedia.getChildCount(); i++) {
+            View pictureItem = layoutMedia.getChildAt(i);
+            ImageView imageView;
+            try {
+                imageView = (ImageView) pictureItem.findViewById(R.id.imageview_momenteditor_picture_item);
+            } catch (ClassCastException e) {
+                continue;
+            }
+            DriveId driveId = (DriveId) pictureItem.getTag();
+            if (driveId != null) {
+                mediaNotToDelete.add(driveId);
+            } else {
+                mediaToAdd.add(((BitmapDrawable) imageView.getDrawable()).getBitmap());
+            }
+        }
+    }
+
+    private void saveMediaChanges() {
+        collectMediaChanges();
+        if (startedWithMoment) {
+            if (googleApiClient.isConnected()) {
+                if (initialMediaContentDriveIds != null) {
+                    for (DriveId driveId : initialMediaContentDriveIds) {
+                        if (!mediaNotToDelete.contains(driveId)) {
+                            momentManager.deleteMediaContent(moment.getId(), driveId);
+                            DriveManager.deleteMediaContentFile(googleApiClient, driveId);
+                        }
+                    }
+                }
+                for (Bitmap bitmap : mediaToAdd) {
+                    DriveManager.uploadMediaContentFile(moment.getId(), bitmap);
+                }
+            }
+        } else {
+            for (Bitmap bitmap : mediaToAdd) {
+                DriveManager.uploadMediaContentFile(moment.getId(), bitmap);
+            }
+        }
     }
 
     private void dateChanged(int year, int month, int day, SimpleDateFormat dateFormat) {
