@@ -63,7 +63,11 @@ public class DriveManager {
         driveId.asDriveFile().delete(googleApiClient);
     }
 
-    public static class UploadMediaTask extends AsyncTask<Void, Void, Void> {
+    public static void uploadMediaContentFile(UUID momentId, Bitmap bitmap) {
+        new UploadMediaTask(momentId, bitmap).execute();
+    }
+
+    private static class UploadMediaTask extends AsyncTask<Void, Void, Void> {
         public static final int COMPRESSION_QUALITY = 100;
         public static final String TAG = "UploadMediaTask";
         private UUID momentId;

@@ -174,7 +174,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
                         }
                     }
                     for (Bitmap bitmap : mediaToAdd) {
-                        new DriveManager.UploadMediaTask(moment.getId(), bitmap).execute();
+                        DriveManager.uploadMediaContentFile(moment.getId(), bitmap);
                     }
                 }
                 Intent intent = new Intent();
@@ -184,7 +184,7 @@ public class MomentEditorActivity extends AppCompatActivity implements GoogleApi
             } else {
                 momentManager.insertMoment(moment);
                 for (Bitmap bitmap : mediaToAdd) {
-                    new DriveManager.UploadMediaTask(moment.getId(), bitmap).execute();
+                    DriveManager.uploadMediaContentFile(moment.getId(), bitmap);
                 }
                 Intent intent = new Intent(this, MomentViewActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
