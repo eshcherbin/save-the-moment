@@ -31,7 +31,7 @@ public class MapOfMomentsActivity extends FragmentActivity implements
 
     public static final String MOMENT = "Moment";
     public static final String IS_SINGLE_MOMENT = "IsSingleMoment";
-    public static final int SINGLE_MOMENT_ZOOM = 10;
+    public static final float SINGLE_MOMENT_ZOOM = 10;
 
     private static final int LOADER_ID = 0;
 
@@ -110,12 +110,18 @@ public class MapOfMomentsActivity extends FragmentActivity implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         googleMap.clear();
+        LatLng lastPosition = null;
         while (data.moveToNext()) {
             double longitude = data.getDouble(data.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LONGITUDE));
             double latitude = data.getDouble(data.getColumnIndexOrThrow(MomentManager.MOMENT_LOCATION_LATITUDE));
             UUID momentId = UUID.fromString(data.getString(data.getColumnIndexOrThrow(MomentManager.MOMENT_ID)));
-            Marker marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
+            LatLng currentLatLng = new LatLng(latitude, longitude);
+            Marker marker = googleMap.addMarker(new MarkerOptions().position(currentLatLng));
             marker.setTag(momentId);
+            lastPosition = currentLatLng;
+        }
+        if (lastPosition != null) {
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(lastPosition));
         }
     }
 
